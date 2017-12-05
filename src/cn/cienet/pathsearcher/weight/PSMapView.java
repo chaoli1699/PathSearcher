@@ -93,11 +93,11 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * 显示障碍物开关
 	 */
-	private boolean showStones=false;
+	private boolean showStonesAllowed=false;
 	/*
 	 * 显示定位容错范围
 	 */
-	private boolean showPosErrAllowed=true;
+	private boolean showPosErrAllowed=false;
 	private float locationErrorAllowdRadiu=300;
 	/*
 	 * 目标地参数
@@ -301,6 +301,14 @@ public class PSMapView extends ScaleImageView {
 		return pos;
 	}
 	
+	public void setStonesVisiable(boolean ifShow){
+		showStonesAllowed=ifShow;
+	}
+	
+	public void setPosErrVisiable(boolean ifShow){
+		showPosErrAllowed=ifShow;
+	}
+	
 	private void drawStartPosOnMap(Canvas canvas){
 		if (currentPosX>-1&&currentPosY>-1) {
 			canvas.drawCircle(matrixValues[2]+currentPosX*MapBuilder.SCALETOREAL*displayScale*matrixValues[0],
@@ -389,7 +397,7 @@ public class PSMapView extends ScaleImageView {
 		matrixValues=new float[9];
 		mMatrix.getValues(matrixValues);
 		
-		if (showStones) {
+		if (showStonesAllowed) {
 			drawStonesOnMap(canvas);
 		}
 		
