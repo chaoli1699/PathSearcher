@@ -10,7 +10,6 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import cn.cienet.baidutts.util.BaiduTTSHelper;
-import cn.cienet.pathsearcher.astar.MapBuilder;
 import cn.cienet.pathsearcher.astar.PathSearcher;
 import cn.cienet.pathsearcher.astar.PositionWhatcher;
 import cn.cienet.pathsearcher.bean.VoiceBean;
@@ -59,8 +58,9 @@ public class PSTMapView extends PSMapView {
 				if (baiduTTSHelper!=null) {
 					baiduTTSHelper.speak(voiceDetails[getVoiceIndex("SEARCH_PATH")]);
 				}
-				pathSearcherThread.start();
-//				THREAD_POOL_EXECUTOR.execute(pathSearcher);
+//				pathSearcherThread.start();
+				LOCK_VIEW=true;
+				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
 				//Walk to aim position
@@ -69,8 +69,8 @@ public class PSTMapView extends PSMapView {
 						baiduTTSHelper.speak(voiceDetails[getVoiceIndex("SEARCH_SUCCESS")]);
 					}
 					positionWhatcher.setPathList(mPathList);
-					postionWatcherThread.start();				
-//					THREAD_POOL_EXECUTOR.execute(positionWhatcher);
+//					postionWatcherThread.start();				
+					THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				}
 				break;
 			case TTS_INIT_SUCCESS:
@@ -187,15 +187,18 @@ public class PSTMapView extends PSMapView {
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
-				if (baiduTTSHelper!=null && mPathList.size()<1) {
-					baiduTTSHelper.stop();
-					baiduTTSHelper.speak(voiceDetails[getVoiceIndex("AT_UR_AIM")]);
+				if (mPathList.size()<1) {
+					LOCK_VIEW=false;
+					if (baiduTTSHelper!=null) {
+						baiduTTSHelper.stop();
+						baiduTTSHelper.speak(voiceDetails[getVoiceIndex("AT_UR_AIM")]);
+					}
 				}
 				pstmHandler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
 		});
-		pathSearcherThread=new Thread(pathSearcher);
-		postionWatcherThread=new Thread(positionWhatcher);
+//		pathSearcherThread=new Thread(pathSearcher);
+//		postionWatcherThread=new Thread(positionWhatcher);
 		
 	}
 	
