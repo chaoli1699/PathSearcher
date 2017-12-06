@@ -108,6 +108,11 @@ public class PSMapView extends ScaleImageView {
 	
 	private static final float pointRadiu=20;
 	
+	protected static final int JUST_REFRESH_VIEW=0;
+	protected static final int READY_TO_SEARCH=1;
+	protected static final int SEARCH_SUCCESS=2;
+	protected static final int WALK_OUT_OF_PATH=3;
+	
 	@SuppressLint("HandlerLeak")
 	private Handler handler=new Handler(){
 		
@@ -115,21 +120,21 @@ public class PSMapView extends ScaleImageView {
 			
 			postInvalidate();
 			switch (msg.what) {
-			case 0:
+			case JUST_REFRESH_VIEW:
 				//Normal status
 				break;
-			case 1:
+			case READY_TO_SEARCH:
 				//Prepare to search path
 				pathSearcherThread.start();
 //				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
-			case 2:
+			case SEARCH_SUCCESS:
 				//Walk to aim position
 				positionWhatcher.setPathList(mPathList);
 				postionWatcherThread.start();
 //				THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				break;
-			case 3:
+			case WALK_OUT_OF_PATH:
 				//Walking out of path, warning to host and reset path
 				pathSearcher.setStartAndEnd(false, msg.arg1, msg.arg2,
 						endX*MapBuilder.SCALETOREAL, endY*MapBuilder.SCALETOREAL);
@@ -255,7 +260,7 @@ public class PSMapView extends ScaleImageView {
 				currentPosY=sy;
 				endX=ex;
 				endY=ey;
-				handler.sendEmptyMessage(1);
+				handler.sendEmptyMessage(READY_TO_SEARCH);
 			}
 
 			@Override
@@ -263,7 +268,7 @@ public class PSMapView extends ScaleImageView {
 				// TODO Auto-generated method stub
 				clearPath=false;
 				mPathList=pathList;
-				handler.sendEmptyMessage(2);
+				handler.sendEmptyMessage(SEARCH_SUCCESS);
 			}
 
 			@Override
@@ -281,7 +286,7 @@ public class PSMapView extends ScaleImageView {
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
-				handler.sendEmptyMessage(0);
+				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
 		});
 		
@@ -356,8 +361,9 @@ public class PSMapView extends ScaleImageView {
 			float mfs[]=fixXY(mPathList.get(0)[0], mPathList.get(0)[1]);
 			astarPath.moveTo(mfs[0], mfs[1]);
 			
+			float[] lfs;
 			for(int i=1;i<mPathList.size();i++){
-				float[] lfs=fixXY(mPathList.get(i)[0], mPathList.get(i)[1]);
+				lfs=fixXY(mPathList.get(i)[0], mPathList.get(i)[1]);
 				astarPath.lineTo(lfs[0], lfs[1]);
 			}
 			canvas.drawPath(astarPath, pathPaint);
