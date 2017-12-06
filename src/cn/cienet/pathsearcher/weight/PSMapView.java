@@ -1,12 +1,15 @@
 package cn.cienet.pathsearcher.weight;
 
 import java.util.List;
-//import java.util.concurrent.Executor;
+import java.util.concurrent.Executor;
 //import java.util.concurrent.LinkedBlockingDeque;
 //import java.util.concurrent.ThreadFactory;
 //import java.util.concurrent.ThreadPoolExecutor;
 //import java.util.concurrent.TimeUnit;
 //import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -80,12 +83,12 @@ public class PSMapView extends ScaleImageView {
 	 * 寻路线程
 	 */
 	private PathSearcher pathSearcher;
-	private Thread pathSearcherThread;
+//	private Thread pathSearcherThread;
 	/*
 	 * 循迹线程
 	 */
 	private PositionWhatcher positionWhatcher;
-	private Thread postionWatcherThread;
+//	private Thread postionWatcherThread;
 	/*
 	 * 清除路线开关
 	 */
@@ -113,6 +116,8 @@ public class PSMapView extends ScaleImageView {
 	protected static final int SEARCH_SUCCESS=2;
 	protected static final int WALK_OUT_OF_PATH=3;
 	
+	private boolean LOCK_VIEW=false;
+	
 	@SuppressLint("HandlerLeak")
 	private Handler handler=new Handler(){
 		
@@ -125,14 +130,15 @@ public class PSMapView extends ScaleImageView {
 				break;
 			case READY_TO_SEARCH:
 				//Prepare to search path
-				pathSearcherThread.start();
-//				THREAD_POOL_EXECUTOR.execute(pathSearcher);
+//				pathSearcherThread.start();
+				LOCK_VIEW=true;
+				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
 				//Walk to aim position
 				positionWhatcher.setPathList(mPathList);
-				postionWatcherThread.start();
-//				THREAD_POOL_EXECUTOR.execute(positionWhatcher);
+//				postionWatcherThread.start();
+				THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				break;
 			case WALK_OUT_OF_PATH:
 				//Walking out of path, warning to host and reset path
@@ -146,18 +152,19 @@ public class PSMapView extends ScaleImageView {
 		};
 	};
 	
-//	private static final ThreadFactory sThreadFactory=new ThreadFactory() {
-//		
-//		private final AtomicInteger mCount=new AtomicInteger();
-//		
-//		@Override
-//		public Thread newThread(Runnable r) {
-//			// TODO Auto-generated method stub
-//			return new Thread(r,TAG+" #"+ mCount.getAndIncrement());
-//		}
-//	};
+	private static final ThreadFactory sThreadFactory=new ThreadFactory() {
+		
+		private final AtomicInteger mCount=new AtomicInteger();
+		
+		@Override
+		public Thread newThread(Runnable r) {
+			// TODO Auto-generated method stub
+			return new Thread(r,TAG+" #"+ mCount.getAndIncrement());
+		}
+	};
 //	
-//	public static final Executor THREAD_POOL_EXECUTOR = 
+	public static final Executor THREAD_POOL_EXECUTOR = 
+			Executors.newSingleThreadExecutor(sThreadFactory);
 //			new ThreadPoolExecutor(
 //					CORE_POOL_SIZE,
 //			        MAXIMUM_POOL_SIZE,
@@ -282,16 +289,19 @@ public class PSMapView extends ScaleImageView {
 			
 			@Override
 			public void onPositionChanged(int x, int y, List<int[]> newPathList) {
-				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub	
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
+				if (newPathList.size()<1) {
+					LOCK_VIEW=false;
+				}
 			}
 		});
 		
-		pathSearcherThread=new Thread(pathSearcher);
-		postionWatcherThread=new Thread(positionWhatcher);
+//		pathSearcherThread=new Thread(pathSearcher);
+//		postionWatcherThread=new Thread(positionWhatcher);
 	}
 	
 	public void setCurrentPos(float[] pos){
@@ -388,7 +398,8 @@ public class PSMapView extends ScaleImageView {
 				cy=aimArea.getPointY()/MapBuilder.SCALETOREAL;
 				
 				drawPointOnMap(canvas, cx, cy, aimPaint,
-						false, null, null, false, null);
+						false, null, null,
+						false, null);
 			}
 		}
 	}
@@ -397,8 +408,7 @@ public class PSMapView extends ScaleImageView {
 		
 		if (stoneAreas!=null) {
 			
-			float[] sfs;
-			float[] efs;
+			float[] sfs, efs;
 			StoneArea stoneArea;
 			
 			for(int i=0;i<stoneAreas.size();i++){
@@ -454,7 +464,8 @@ public class PSMapView extends ScaleImageView {
 				float x=event.getX();
 				float y=event.getY();
 				
-				if (!(pathSearcherThread.isAlive()||postionWatcherThread.isAlive())) {
+//				if (!(pathSearcherThread.isAlive()||postionWatcherThread.isAlive())) {
+				if (!LOCK_VIEW) {
 					if (aimAreas!=null) {
 						float[] afs;
 						AimArea aimArea;
@@ -468,6 +479,7 @@ public class PSMapView extends ScaleImageView {
 								break;
 							}
 						}
+//					}
 					}
 				}
 				break;
