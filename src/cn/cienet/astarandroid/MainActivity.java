@@ -7,11 +7,12 @@ import android.view.MenuItem;
 import cn.cienet.pathsearcher.astar.MapBuilder;
 import cn.cienet.pathsearcher.astar.PathSearcher;
 import cn.cienet.pathsearcher.interfaces.OnPointClickListener;
-import cn.cienet.pathsearcher.weight.PSMapView;
+import cn.cienet.pathsearcher.utils.TTSConstants;
+import cn.cienet.pathsearcher.weight.PSTMapView;
 
 public class MainActivity extends Activity {
 	
-	private PSMapView psMapView;
+	private PSTMapView pstMapView;
 	
 	//private static final String TAG="MainActivity";
 	private PathSearcher pathSearcher;
@@ -21,27 +22,28 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		psMapView=(PSMapView) findViewById(R.id.main_mapView);
+		pstMapView=(PSTMapView) findViewById(R.id.main_mapView);
 				
 		pathSearcher=new PathSearcher();
-		psMapView.setPathSearcher(pathSearcher);
+		pstMapView.setPathSearcher(pathSearcher);
 		//初始化起点
 		final float[] currentPos=new float[2];
 		currentPos[0]=MapBuilder.mapBean.getAimList().get(0).getPointX();
 		currentPos[1]=MapBuilder.mapBean.getAimList().get(0).getPointY();
-		psMapView.setCurrentPos(currentPos);
+		pstMapView.setCurrentPos(currentPos);
 		//psMapView.setPosErrVisiable(true);
 		//psMapView.setStonesVisiable(true);
+		pstMapView.setTTSConstants(this,
+				TTSConstants.appId,
+				TTSConstants.apiKey,
+				TTSConstants.secretKey);
 				
-		psMapView.setOnPointClickListener(new OnPointClickListener() {
+		pstMapView.setOnPointClickListener(new OnPointClickListener() {
 			
 			@Override
 			public void onClick(float x, float y) {
 				// TODO Auto-generated method stub
-				pathSearcher.setStartAndEnd(true,
-						psMapView.getCurrentPos()[0],
-						psMapView.getCurrentPos()[1],
-						x, y);
+				pathSearcher.setStartAndEnd(pstMapView.getCurrentPos()[0], pstMapView.getCurrentPos()[1], x, y);
 			}
 		});
 	}
@@ -63,6 +65,13 @@ public class MainActivity extends Activity {
 			//return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		pstMapView.releaseBaiduTTSHelper();
+		super.onDestroy();
 	}
 	
 }

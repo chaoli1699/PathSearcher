@@ -3,8 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="cn.cienet.astarandroid.MainActivity" >
-    
-    <cn.cienet.pathsearcher.weight.PSMapView
+   
+    <cn.cienet.pathsearcher.weight.PSTMapView
         android:id="@+id/main_mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

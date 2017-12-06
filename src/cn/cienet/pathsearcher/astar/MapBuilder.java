@@ -16,6 +16,7 @@ import cn.cienet.pathsearcher.bean.StoneArea;
 import cn.cienet.pathsearcher.sql.BeanFactory;
 
 public class MapBuilder {
+
 	
     public static int[][] map;
     public static float SCALETOREAL=1.0f;

@@ -13,13 +13,15 @@ public class PathSearcher implements Runnable {
 		this.onPathSearchListener=onPathSearchListener;
 	}
 	
+	public  void setStartAndEnd(float sx , float sy, float ex, float ey ){
+		setStartAndEnd(true, sx, sy, ex, ey);
+	}
+	
 	public  void setStartAndEnd(boolean ifClearPath, float sx , float sy, float ex, float ey ){
-		
 		startX=(int)(sx/MapBuilder.SCALETOREAL);
 		startY=(int)(sy/MapBuilder.SCALETOREAL);
 		endX=(int)(ex/MapBuilder.SCALETOREAL);
-		endY=(int)(ey/MapBuilder.SCALETOREAL); 
-		
+		endY=(int)(ey/MapBuilder.SCALETOREAL);   
 		onPathSearchListener.onStartAndEndPrepared(ifClearPath, startX, startY, endX, endY);
 	}
 	

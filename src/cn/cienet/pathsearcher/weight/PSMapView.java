@@ -56,14 +56,15 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * 路线起止点坐标
 	 */
-	private float currentPosX=-1;
-	private float currentPosY=-1;
-	private float endX=-1;
-	private float endY=-1;
+	protected float currentPosX=-1;
+	protected float currentPosY=-1;
+	protected float endX=-1;
+	protected float endY=-1;
 	/*
 	 * 路线
 	 */
-	private List<int[]> mPathList;
+	protected List<int[]> mPathList;
+	
 	private Path astarPath;
 	/*
 	 * 图片加载时，为适应view尺寸的缩放量
@@ -79,17 +80,17 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * 寻路线程
 	 */
-	private PathSearcher pathSearcher;
-	private Thread pathSearcherThread;
+	protected PathSearcher pathSearcher;
+	protected Thread pathSearcherThread;
 	/*
 	 * 循迹线程
 	 */
-	private PositionWhatcher positionWhatcher;
-	private Thread postionWatcherThread;
+	protected PositionWhatcher positionWhatcher;
+    protected Thread postionWatcherThread;
 	/*
 	 * 清除路线开关
 	 */
-	private boolean clearPath=false;
+    protected boolean clearPath=false;
 	/*
 	 * 显示障碍物开关
 	 */
@@ -102,11 +103,16 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * 目标地参数
 	 */
-	private OnPointClickListener onPointClickListener;
-	private List<AimArea> aimAreas;
+	protected OnPointClickListener onPointClickListener;
+	protected AimArea aimArea;
+	protected List<AimArea> aimAreas;
 	private List<StoneArea> stoneAreas;
 	
-	private static final float pointRadiu=20;
+	protected static final float pointRadiu=20;
+	protected static final int JUST_REFRESH_VIEW=0;
+	protected static final int READY_TO_SEARCH=1;
+	protected static final int SEARCH_SUCCESS=2;
+	protected static final int WALK_OUT_OF_PATH=3;
 	
 	@SuppressLint("HandlerLeak")
 	private Handler handler=new Handler(){
@@ -115,21 +121,21 @@ public class PSMapView extends ScaleImageView {
 			
 			postInvalidate();
 			switch (msg.what) {
-			case 0:
-				//Normal status
+			case JUST_REFRESH_VIEW:
+				
 				break;
-			case 1:
+			case READY_TO_SEARCH:
 				//Prepare to search path
 				pathSearcherThread.start();
 //				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
-			case 2:
+			case SEARCH_SUCCESS:
 				//Walk to aim position
 				positionWhatcher.setPathList(mPathList);
 				postionWatcherThread.start();
 //				THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				break;
-			case 3:
+			case WALK_OUT_OF_PATH:
 				//Walking out of path, warning to host and reset path
 				pathSearcher.setStartAndEnd(false, msg.arg1, msg.arg2,
 						endX*MapBuilder.SCALETOREAL, endY*MapBuilder.SCALETOREAL);
@@ -178,7 +184,7 @@ public class PSMapView extends ScaleImageView {
 		initMapBean();
 	}
 	
-	private void initPaint(){
+	protected void initPaint(){
 		posPaint=new Paint();
 		posPaint.setStyle(Paint.Style.FILL);
 		posPaint.setStrokeWidth((float) 4.0);
@@ -224,7 +230,7 @@ public class PSMapView extends ScaleImageView {
         astarPath=new Path();
 	}
 	
-	private void initMapBean(){
+	protected void initMapBean(){
 		
 		if (MapBuilder.mapBean!=null) {
 			
@@ -255,7 +261,7 @@ public class PSMapView extends ScaleImageView {
 				currentPosY=sy;
 				endX=ex;
 				endY=ey;
-				handler.sendEmptyMessage(1);
+				handler.sendEmptyMessage(READY_TO_SEARCH);
 			}
 
 			@Override
@@ -263,7 +269,7 @@ public class PSMapView extends ScaleImageView {
 				// TODO Auto-generated method stub
 				clearPath=false;
 				mPathList=pathList;
-				handler.sendEmptyMessage(2);
+				handler.sendEmptyMessage(SEARCH_SUCCESS);
 			}
 
 			@Override
@@ -281,7 +287,7 @@ public class PSMapView extends ScaleImageView {
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
-				handler.sendEmptyMessage(0);
+				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
 		});
 		
@@ -309,7 +315,7 @@ public class PSMapView extends ScaleImageView {
 		showPosErrAllowed=ifShow;
 	}
 	
-	private float[] fixXY(float x, float y){
+	protected float[] fixXY(float x, float y){
 		float[] fixedXY=new float[2];
 		fixedXY[0] = matrixValues[2]+x*MapBuilder.SCALETOREAL*displayScale*matrixValues[0];
 		fixedXY[1] = matrixValues[5]+y*MapBuilder.SCALETOREAL*displayScale*matrixValues[4];
@@ -451,13 +457,12 @@ public class PSMapView extends ScaleImageView {
 				if (!(pathSearcherThread.isAlive()||postionWatcherThread.isAlive())) {
 					if (aimAreas!=null) {
 						float[] afs;
-						AimArea aimArea;
 						for(int i=0;i<aimAreas.size();i++){
 							aimArea=aimAreas.get(i);
 							afs=fixXY(aimArea.getPointX()/MapBuilder.SCALETOREAL,
 									aimArea.getPointY()/MapBuilder.SCALETOREAL);
 							double distance=Math.sqrt((Math.pow((x-afs[0]), 2)+Math.pow((y-afs[1]),2)));
-							if (distance < (pointRadiu+10)) {				
+							if (distance < (pointRadiu+10)) {
 								onPointClickListener.onClick(aimAreas.get(i).getPointX(), aimAreas.get(i).getPointY());
 								break;
 							}
