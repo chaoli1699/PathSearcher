@@ -25,7 +25,7 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 	private float mMidScale ;
 	private float mMaxScale ;
 	protected Matrix mMatrix ;
-	//private ScaleGestureDetector mScaleGestureDetector ;//捕获用户多指触控时缩放的比例
+	private ScaleGestureDetector mScaleGestureDetector ;//捕获用户多指触控时缩放的比例
 
 	//---------------------自由移动的变量------------------------
 	/**
@@ -111,7 +111,7 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 		mMatrix = new Matrix() ;
 		setScaleType(ScaleType.MATRIX);
 
-		//mScaleGestureDetector = new ScaleGestureDetector(context, this);
+		mScaleGestureDetector = new ScaleGestureDetector(context, this);
 		setOnTouchListener(this);
 		//系统触发的最小滑动距离
 		mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop() ;
@@ -337,7 +337,7 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 		}
 
 		//将手势传递给ScaleGestureDetector
-		//boolean onTouchEvent = mScaleGestureDetector.onTouchEvent(event);
+		boolean onTouchEvent = mScaleGestureDetector.onTouchEvent(event);
 
 		//-------------------------将放大的图片自由移动逻辑处理-----------------start------------
 		//得到触控中心点的坐标
