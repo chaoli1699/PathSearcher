@@ -76,7 +76,7 @@ public class PSMapView extends ScaleImageView {
 	 * 线程池参数
 	 */
 //	private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-//	private static final int CORE_POOL_SIZE =1;
+//	private static final int CORE_POOL_SIZE =CPU_COUNT *2;
 //	private static final int MAXIMUM_POOL_SIZE = CPU_COUNT *2+1;
 //	private static final long KEEP_ALIVE=10L;
 	/*
