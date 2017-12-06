@@ -30,7 +30,8 @@ public class MainActivity extends Activity {
 		currentPos[0]=MapBuilder.mapBean.getAimList().get(0).getPointX();
 		currentPos[1]=MapBuilder.mapBean.getAimList().get(0).getPointY();
 		psMapView.setCurrentPos(currentPos);
-		psMapView.setPosErrVisiable(true);
+		//psMapView.setPosErrVisiable(true);
+		//psMapView.setStonesVisiable(true);
 				
 		psMapView.setOnPointClickListener(new OnPointClickListener() {
 			

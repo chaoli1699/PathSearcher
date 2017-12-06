@@ -234,7 +234,7 @@ public class PSMapView extends ScaleImageView {
 			screenHeight = dm.heightPixels;
 			
 			displayScale=(float)screenWidth * (float) MapBuilder.mapBean.getUnknowScale() / (float)(MapBuilder.mapBean.getmWidth());
-			locationErrorAllowdRadiu=MapBuilder.mapBean.getLocationErrorAllowed()*100/displayScale;
+			locationErrorAllowdRadiu=MapBuilder.mapBean.getLocationErrorAllowed()*100/MapBuilder.SCALETOREAL/displayScale;
 			stoneAreas=MapBuilder.mapBean.getStoneList();
 			aimAreas=MapBuilder.mapBean.getAimList();
 		}
@@ -309,30 +309,42 @@ public class PSMapView extends ScaleImageView {
 		showPosErrAllowed=ifShow;
 	}
 	
-	private void drawStartPosOnMap(Canvas canvas){
-		if (currentPosX>-1&&currentPosY>-1) {
-			canvas.drawCircle(matrixValues[2]+currentPosX*MapBuilder.SCALETOREAL*displayScale*matrixValues[0],
-					matrixValues[5]+currentPosY*MapBuilder.SCALETOREAL*displayScale*matrixValues[4], 
-					pointRadiu, posPaint);
-			canvas.drawText("start", matrixValues[2]+currentPosX*MapBuilder.SCALETOREAL*displayScale*matrixValues[0],
-					matrixValues[5]+(currentPosY*MapBuilder.SCALETOREAL*displayScale+pointRadiu)*matrixValues[4], textPaint);
+	private float[] fixXY(float x, float y){
+		float[] fixedXY=new float[2];
+		fixedXY[0] = matrixValues[2]+x*MapBuilder.SCALETOREAL*displayScale*matrixValues[0];
+		fixedXY[1] = matrixValues[5]+y*MapBuilder.SCALETOREAL*displayScale*matrixValues[4];
+		return fixedXY;
+	}
+	
+	private void drawPointOnMap(Canvas canvas,
+			float x, float y, Paint posPaint,
+			boolean showlable, String lable, Paint textPaint,
+			boolean showPosErrAllowed, Paint errAllowedPaint){
 		
+		if (x > -1 &&y > -1) {
+			float[] fs=fixXY(x, y);
+			canvas.drawCircle(fs[0], fs[1], pointRadiu, posPaint);
+			
+			if (showlable) {
+				canvas.drawText(lable, fs[0], fs[1], textPaint);
+			}
+			
 			if (showPosErrAllowed) {
-				canvas.drawCircle(matrixValues[2]+currentPosX*MapBuilder.SCALETOREAL*displayScale*matrixValues[0],
-						matrixValues[5]+currentPosY*MapBuilder.SCALETOREAL*displayScale*matrixValues[4],
-						locationErrorAllowdRadiu/MapBuilder.SCALETOREAL, posPaint2);
+				canvas.drawCircle(fs[0], fs[1], locationErrorAllowdRadiu, errAllowedPaint);
 			}
 		}
 	}
 	
+	private void drawStartPosOnMap(Canvas canvas){
+		drawPointOnMap(canvas, currentPosX, currentPosY, posPaint,
+				true, "start", textPaint,
+				showPosErrAllowed, posPaint2);
+	}
+	
 	private void drawEndPosOnMap(Canvas canvas){
-		if (endX>-1&&endY>-1) {
-			canvas.drawCircle(matrixValues[2]+endX*MapBuilder.SCALETOREAL*displayScale*matrixValues[0],
-					matrixValues[5]+endY*MapBuilder.SCALETOREAL*displayScale*matrixValues[4],
-					pointRadiu, posPaint);
-			canvas.drawText("end", matrixValues[2]+endX*MapBuilder.SCALETOREAL*displayScale*matrixValues[0],
-					matrixValues[5]+(endY*MapBuilder.SCALETOREAL*displayScale+pointRadiu)*matrixValues[4], textPaint);
-		}
+		drawPointOnMap(canvas, endX, endY, posPaint,
+				true, "end", textPaint,
+				false, null);
 	}
 	
 	private void drawPathOnMap(Canvas canvas){
@@ -341,15 +353,16 @@ public class PSMapView extends ScaleImageView {
 		}
 	
 		if (mPathList!=null&&mPathList.size()>0) {
-			astarPath.moveTo(matrixValues[2]+mPathList.get(0)[0]*MapBuilder.SCALETOREAL*matrixValues[0]*displayScale,
-					matrixValues[5]+mPathList.get(0)[1]*MapBuilder.SCALETOREAL*matrixValues[4]*displayScale);
+			float mfs[]=fixXY(mPathList.get(0)[0], mPathList.get(0)[1]);
+			astarPath.moveTo(mfs[0], mfs[1]);
+			
 			for(int i=1;i<mPathList.size();i++){
-				astarPath.lineTo(matrixValues[2]+mPathList.get(i)[0]*MapBuilder.SCALETOREAL*matrixValues[0]*displayScale,
-					matrixValues[5]+mPathList.get(i)[1]*MapBuilder.SCALETOREAL*matrixValues[4]*displayScale);
+				float[] lfs=fixXY(mPathList.get(i)[0], mPathList.get(i)[1]);
+				astarPath.lineTo(lfs[0], lfs[1]);
 			}
 			canvas.drawPath(astarPath, pathPaint);
 		}	
-	}
+	} 
 	
 	private void clearPathFormMap(Canvas canvas){
 		astarPath.reset();
@@ -357,14 +370,19 @@ public class PSMapView extends ScaleImageView {
 	}
 	
     private void drawAimPointsOnMap(final Canvas canvas){
-		
+    	
     	if (aimAreas!=null) {
-			for(int i=0;i<aimAreas.size();i++){
-				final AimArea aimArea=aimAreas.get(i);
+    		
+    		float cx, cy;
+        	AimArea aimArea;
+
+        	for(int i=0;i<aimAreas.size();i++){
+				aimArea=aimAreas.get(i);
+				cx=aimArea.getPointX()/MapBuilder.SCALETOREAL;
+				cy=aimArea.getPointY()/MapBuilder.SCALETOREAL;
 				
-				canvas.drawCircle(matrixValues[2]+(aimArea.getPointX())*displayScale*matrixValues[0],
-						matrixValues[5]+(aimArea.getPointY())*displayScale*matrixValues[4],
-						pointRadiu, aimPaint);
+				drawPointOnMap(canvas, cx, cy, aimPaint,
+						false, null, null, false, null);
 			}
 		}
 	}
@@ -372,19 +390,20 @@ public class PSMapView extends ScaleImageView {
 	private void drawStonesOnMap(final Canvas canvas){
 		
 		if (stoneAreas!=null) {
+			
+			float[] sfs;
+			float[] efs;
+			StoneArea stoneArea;
+			
 			for(int i=0;i<stoneAreas.size();i++){
+				stoneArea=stoneAreas.get(i);
+				sfs = fixXY(stoneArea.getStartX()/MapBuilder.SCALETOREAL,
+						stoneArea.getStartY()/MapBuilder.SCALETOREAL);
+				efs = fixXY(stoneArea.getEndX()/MapBuilder.SCALETOREAL,
+						stoneArea.getEndY()/MapBuilder.SCALETOREAL);
 				
-				final StoneArea stoneArea=stoneAreas.get(i);
-				canvas.drawRect(matrixValues[2]+(stoneArea.getStartX())*displayScale*matrixValues[0],
-						matrixValues[5]+(stoneArea.getStartY())*displayScale*matrixValues[4],
-						matrixValues[2]+(stoneArea.getEndX())*displayScale*matrixValues[0],
-						matrixValues[5]+(stoneArea.getEndY())*displayScale*matrixValues[4],
-						stonePaint);
-				
-				canvas.drawText(stoneArea.getAreaName(), 
-						        (matrixValues[2]+stoneArea.getStartX()*displayScale*matrixValues[0]+matrixValues[2]+stoneArea.getEndX()*displayScale*matrixValues[0])/2, 
-							    (matrixValues[5]+stoneArea.getStartY()*displayScale*matrixValues[4]+matrixValues[5]+stoneArea.getEndY()*displayScale*matrixValues[4])/2,
-								textPaint2);
+				canvas.drawRect(sfs[0], sfs[1], efs[0], efs[1], stonePaint);
+				canvas.drawText(stoneArea.getAreaName(), (sfs[0] + efs[0]) /2, (sfs[1] + efs[1]) /2, textPaint2);
 			}
 		}
 	}
@@ -431,10 +450,13 @@ public class PSMapView extends ScaleImageView {
 				
 				if (!(pathSearcherThread.isAlive()||postionWatcherThread.isAlive())) {
 					if (aimAreas!=null) {
+						float[] afs;
+						AimArea aimArea;
 						for(int i=0;i<aimAreas.size();i++){
-							float mx=matrixValues[2]+aimAreas.get(i).getPointX()*displayScale*matrixValues[0];
-							float my=matrixValues[5]+aimAreas.get(i).getPointY()*displayScale*matrixValues[4];
-							double distance=Math.sqrt((Math.pow((x-mx), 2)+Math.pow((y-my),2)));
+							aimArea=aimAreas.get(i);
+							afs=fixXY(aimArea.getPointX()/MapBuilder.SCALETOREAL,
+									aimArea.getPointY()/MapBuilder.SCALETOREAL);
+							double distance=Math.sqrt((Math.pow((x-afs[0]), 2)+Math.pow((y-afs[1]),2)));
 							if (distance < (pointRadiu+10)) {				
 								onPointClickListener.onClick(aimAreas.get(i).getPointX(), aimAreas.get(i).getPointY());
 								break;
