@@ -147,8 +147,8 @@ public class PSTMapView extends PSMapView {
 				CLEAR_PATH=ifClearPath;
 				currentPosX=sx;
 				currentPosY=sy;
-				endX=ex;
-				endY=ey;
+				endPosX=ex;
+				endPosY=ey;
 				
 				if (baiduTTSHelper!=null) {
 					baiduTTSHelper.stop();

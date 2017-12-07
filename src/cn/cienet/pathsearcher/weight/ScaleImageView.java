@@ -204,15 +204,15 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 			/**
 			 * 得到初始化缩放的比例
 			 */
-			mInitScale = scale * 1.7f ;
+			mInitScale = scale * 2.3f ;
 			mMidScale = 2*mInitScale ;//双击放大的值
 			mMaxScale = 4*mInitScale ;//放大的最大值
 
 			//将图片移动到控件的中心
-//			int dx = width/2 - intrinsicWidth/2 ;
-//			int dy = height/2 - intrinsicHeight/2 ;
+			int dx = width/2 - intrinsicWidth/2 ;
+			int dy = height/2 - intrinsicHeight ;
 			//将一些参数设置到图片或控件上 设置平移缩放 旋转
-//			mMatrix.postTranslate(dx, dy);
+			mMatrix.postTranslate(dx, dy);
 			mMatrix.postScale(mInitScale, mInitScale, 0, 0);//以控件的中心进行缩放
 			setImageMatrix(mMatrix);
 
@@ -283,10 +283,10 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 		//控件的宽和高
 		int width = getWidth() ;
 		int height = getHeight();
-		Log.i("top", "top:"+rect.top);
-		Log.i("left", "left:"+rect.left);
-		Log.i("right", "right:"+rect.right);
-		Log.i("bottom", "bottom:"+rect.bottom);
+//		Log.i("top", "top:"+rect.top);
+//		Log.i("left", "left:"+rect.left);
+//		Log.i("right", "right:"+rect.right);
+//		Log.i("bottom", "bottom:"+rect.bottom);
 
 		//如果图片的宽和高大于控件的宽和高 在缩放过程中会产生border 进行偏移补偿
 		if(rect.width() >= width){
@@ -375,34 +375,8 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 				if(rectF.width()-getWidth()>0.01||rectF.height()-getHeight()>0.01){
 					getParent().requestDisallowInterceptTouchEvent(true);
 				}
-			}*/
-
-				float dx = pointerX - mLastPointerX ;
-				float dy = pointerY - mLastPointerY ;
-				if (!isCanDrag) {
-					isCanDrag = isMoveAction(dx, dy);
-				}
-				if(isCanDrag){
-					if(getDrawable()!=null){
-						isCheckLeftAndRight = isCheckTopAndBottom = true ;
-						//如果图片宽度小于控件宽度 不允许横向移动
-						if(rectF.width()<getWidth()){
-							isCheckLeftAndRight = false ;
-							dx = 0 ;
-						}
-						//如果图片的高度小于控件的高度 不允许纵向移动
-						if(rectF.height()<getHeight()){
-							isCheckTopAndBottom  = false ;
-							dy = 0 ;
-						}
-
-						mMatrix.postTranslate(dx, dy);
-						checkBorderWhenTranslate();
-						setImageMatrix(mMatrix);
-					}
-				}
-				mLastPointerX = pointerX ;
-				mLastPointerY = pointerY ;
+			}*/	
+				move2Point(pointerX, pointerY, mLastPointerX, mLastPointerY, rectF);
 				break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
@@ -411,6 +385,36 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 		}
 		//-------------------------将放大的图片自由移动逻辑处理-------------------end----------
 		return true;
+	}
+
+	protected void move2Point(float cx, float cy, float lx, float ly, RectF rectF){
+		float dx = cx - lx ;
+		float dy = cy - ly ;
+		if (!isCanDrag) {
+			isCanDrag = isMoveAction(dx, dy);
+		}
+		if(isCanDrag){
+			if(getDrawable()!=null){
+				isCheckLeftAndRight = isCheckTopAndBottom = true ;
+				//如果图片宽度小于控件宽度 不允许横向移动
+				if (rectF!=null) {
+					if(rectF.width()<getWidth()){
+						isCheckLeftAndRight = false ;
+						dx = 0 ;
+					}
+					//如果图片的高度小于控件的高度 不允许纵向移动
+					if(rectF.height()<getHeight()){
+						isCheckTopAndBottom  = false ;
+						dy = 0 ;
+					}
+				}
+				mMatrix.postTranslate(dx, dy);
+				checkBorderWhenTranslate();
+				setImageMatrix(mMatrix);
+			}
+		}
+		mLastPointerX = cx ;
+		mLastPointerY = cy ;
 	}
 
 	/**

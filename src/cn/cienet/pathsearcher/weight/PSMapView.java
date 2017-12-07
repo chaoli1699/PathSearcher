@@ -2,8 +2,10 @@ package cn.cienet.pathsearcher.weight;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.annotation.SuppressLint;
@@ -56,8 +58,8 @@ public class PSMapView extends ScaleImageView {
 	 */
 	protected float currentPosX=-1;
 	protected float currentPosY=-1;
-	protected float endX=-1;
-	protected float endY=-1;
+	protected float endPosX=-1;
+	protected float endPosY=-1;
 	/*
 	 * 路线
 	 */
@@ -71,10 +73,10 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * 线程池参数
 	 */
-//	private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-//	private static final int CORE_POOL_SIZE =CPU_COUNT *2;
-//	private static final int MAXIMUM_POOL_SIZE = CPU_COUNT *2+1;
-//	private static final long KEEP_ALIVE=10L;
+	private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
+	private static final int CORE_POOL_SIZE =CPU_COUNT *2;
+	private static final int MAXIMUM_POOL_SIZE = CPU_COUNT *2+1;
+	private static final long KEEP_ALIVE=10L;
 	/*
 	 * 寻路线程
 	 */
@@ -135,7 +137,7 @@ public class PSMapView extends ScaleImageView {
 			case WALK_OUT_OF_PATH:
 				//Walking out of path, warning to host and reset path
 				pathSearcher.setStartAndEnd(false, msg.arg1, msg.arg2,
-						endX*MapBuilder.SCALETOREAL, endY*MapBuilder.SCALETOREAL);
+						endPosX*MapBuilder.SCALETOREAL, endPosY*MapBuilder.SCALETOREAL);
 				break;
 				
 			default:    
@@ -155,15 +157,15 @@ public class PSMapView extends ScaleImageView {
 		}
 	};
 //	
-	protected static final Executor THREAD_POOL_EXECUTOR =
-			Executors.newSingleThreadExecutor(sThreadFactory);
-//			new ThreadPoolExecutor(
-//					CORE_POOL_SIZE,
-//			        MAXIMUM_POOL_SIZE,
-//			        KEEP_ALIVE,
-//			        TimeUnit.SECONDS,
-//			        new LinkedBlockingDeque<Runnable>(),
-//			        sThreadFactory);
+	protected static final Executor THREAD_POOL_EXECUTOR = 
+//			Executors.newSingleThreadExecutor(sThreadFactory);
+			new ThreadPoolExecutor(
+					CORE_POOL_SIZE,
+			        MAXIMUM_POOL_SIZE,
+			        KEEP_ALIVE,
+			        TimeUnit.SECONDS,
+			        new LinkedBlockingDeque<Runnable>(),
+			        sThreadFactory);
 
 	public PSMapView(Context context) {
 		this(context, null);
@@ -241,6 +243,8 @@ public class PSMapView extends ScaleImageView {
 			locationErrorAllowdRadiu=MapBuilder.mapBean.getLocationErrorAllowed()*100/MapBuilder.SCALETOREAL/displayScale;
 			stoneAreas=MapBuilder.mapBean.getStoneList();
 			aimAreas=MapBuilder.mapBean.getAimList();
+			
+			aimArea=aimAreas.get(0);
 		}
 	}
 	
@@ -257,8 +261,8 @@ public class PSMapView extends ScaleImageView {
 				CLEAR_PATH=ifClearPath;
 				currentPosX=sx;
 				currentPosY=sy;
-				endX=ex;
-				endY=ey;
+				endPosX=ex;
+				endPosY=ey;
 				handler.sendEmptyMessage(READY_TO_SEARCH);
 			}
 
@@ -289,6 +293,7 @@ public class PSMapView extends ScaleImageView {
 				if (mPathList.size()<1) {
 					LOCK_AIM_POINT=false;
 				}
+				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
 		});
 	}
@@ -346,7 +351,7 @@ public class PSMapView extends ScaleImageView {
 	}
 	
 	private void drawEndPosOnMap(Canvas canvas){
-		drawPointOnMap(canvas, endX, endY, posPaint,
+		drawPointOnMap(canvas, endPosX, endPosY, posPaint,
 				true, "end", pointLablePaint,
 				false, null);
 	}
@@ -477,12 +482,13 @@ public class PSMapView extends ScaleImageView {
 	@Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+                
         int defaultWidthOrHeight=Math.min(screenWidth, screenHeight);
         int widthSpecMode= MeasureSpec.getMode(widthMeasureSpec);
         int widthSpecSize= MeasureSpec.getSize(widthMeasureSpec);
         int heightSpecMode=MeasureSpec.getMode(heightMeasureSpec);
         int heightSpecSize=MeasureSpec.getSize(heightMeasureSpec);
-
+       
         if (widthSpecMode==MeasureSpec.AT_MOST&&heightSpecMode==MeasureSpec.AT_MOST){
             setMeasuredDimension(defaultWidthOrHeight,defaultWidthOrHeight);
         }else if (widthSpecMode==MeasureSpec.AT_MOST){
@@ -490,5 +496,7 @@ public class PSMapView extends ScaleImageView {
         }else if (widthMeasureSpec==MeasureSpec.AT_MOST){
             setMeasuredDimension(widthSpecSize,defaultWidthOrHeight);
         }
+        
+        move2Point(aimArea.getPointX(), aimArea.getPointY(), widthSpecSize/2, heightSpecSize/2, null);
     }
 }
