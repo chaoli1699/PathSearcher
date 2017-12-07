@@ -55,7 +55,7 @@ public class PSTMapView extends PSMapView {
 				break;
 			case READY_TO_SEARCH:
 				//Prepare to search path
-				LOCK_VIEW=true;
+				LOCK_AIM_POINT=true;
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -144,7 +144,7 @@ public class PSTMapView extends PSMapView {
 			@Override
 			public void onStartAndEndPrepared(boolean ifClearPath, float sx, float sy, float ex, float ey) {
 				// TODO Auto-generated method stub
-				clearPath=ifClearPath;
+				CLEAR_PATH=ifClearPath;
 				currentPosX=sx;
 				currentPosY=sy;
 				endX=ex;
@@ -163,7 +163,7 @@ public class PSTMapView extends PSMapView {
 			@Override
 			public void onSearchingPathComplate(List<int[]> pathList) {
 				// TODO Auto-generated method stub
-				clearPath=false;
+				CLEAR_PATH=false;
 				mPathList=pathList;
 				
 				if (baiduTTSHelper!=null) {
@@ -188,7 +188,7 @@ public class PSTMapView extends PSMapView {
 				currentPosY=y;
 				mPathList=newPathList;
 				if (mPathList.size()<1) {
-					LOCK_VIEW=false;
+					LOCK_AIM_POINT=false;
 					
 					if (baiduTTSHelper!=null) {
 						baiduTTSHelper.stop();
