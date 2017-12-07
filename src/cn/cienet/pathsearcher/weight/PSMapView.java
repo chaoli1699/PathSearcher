@@ -2,12 +2,6 @@ package cn.cienet.pathsearcher.weight;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-//import java.util.concurrent.Executor;
-//import java.util.concurrent.LinkedBlockingDeque;
-//import java.util.concurrent.ThreadFactory;
-//import java.util.concurrent.ThreadPoolExecutor;
-//import java.util.concurrent.TimeUnit;
-//import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -85,12 +79,10 @@ public class PSMapView extends ScaleImageView {
 	 * 寻路线程
 	 */
 	protected PathSearcher pathSearcher;
-//	protected Thread pathSearcherThread;
 	/*
 	 * 循迹线程
 	 */
 	protected PositionWhatcher positionWhatcher;
-//    protected Thread postionWatcherThread;
 	/*
 	 * 清除路线开关
 	 */
@@ -132,14 +124,12 @@ public class PSMapView extends ScaleImageView {
 				break;
 			case READY_TO_SEARCH:
 				//Prepare to search path
-//				pathSearcherThread.start();
 				LOCK_VIEW=true;
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
 				//Walk to aim position
 				positionWhatcher.setPathList(mPathList);
-//				postionWatcherThread.start();
 				THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				break;
 			case WALK_OUT_OF_PATH:

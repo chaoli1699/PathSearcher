@@ -33,10 +33,7 @@ public class MainActivity extends Activity {
 		pstMapView.setCurrentPos(currentPos);
 		//psMapView.setPosErrVisiable(true);
 		//psMapView.setStonesVisiable(true);
-		pstMapView.setTTSConstants(this,
-				TTSConstants.appId,
-				TTSConstants.apiKey,
-				TTSConstants.secretKey);
+		pstMapView.setTTSConstants(TTSConstants.appId, TTSConstants.apiKey, TTSConstants.secretKey);
 				
 		pstMapView.setOnPointClickListener(new OnPointClickListener() {
 			

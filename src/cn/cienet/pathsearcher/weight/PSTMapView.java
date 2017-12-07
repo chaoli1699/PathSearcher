@@ -37,9 +37,9 @@ public class PSTMapView extends PSMapView {
     			"AT_UR_AIM"};
     
     private String[] voiceDetails;
-    private Map<String, String> ttsmap;
     
     private static final int TTS_INIT_SUCCESS=990;
+    private Context context;
     
     private Handler pstmHandler=new Handler(){
     	
@@ -55,21 +55,13 @@ public class PSTMapView extends PSMapView {
 				break;
 			case READY_TO_SEARCH:
 				//Prepare to search path
-				if (baiduTTSHelper!=null) {
-					baiduTTSHelper.speak(voiceDetails[getVoiceIndex("SEARCH_PATH")]);
-				}
-//				pathSearcherThread.start();
 				LOCK_VIEW=true;
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
 				//Walk to aim position
 				if (mPathList!=null&&mPathList.size()>0) {
-					if (baiduTTSHelper!=null) {
-						baiduTTSHelper.speak(voiceDetails[getVoiceIndex("SEARCH_SUCCESS")]);
-					}
-					positionWhatcher.setPathList(mPathList);
-//					postionWatcherThread.start();				
+					positionWhatcher.setPathList(mPathList);		
 					THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				}
 				break;
@@ -99,11 +91,13 @@ public class PSTMapView extends PSMapView {
 	public PSTMapView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		// TODO Auto-generated constructor stub
+		this.context=context;
+		
 		initPaint();
 		initMapBean();
 	}
 	
-    private void initTTSHelper(Context context){
+    private void initTTSHelper(Map<String, String>  ttsmap){
 		
 		List<VoiceBean> voiceBeans = new BeanFactory().getVoiceBean().getVoiceBeans(context);
 		
@@ -122,13 +116,13 @@ public class PSTMapView extends PSMapView {
 		}
 	}
 	
-	public void setTTSConstants(Context context, String appId, String apiKey, String secretKey){
-		ttsmap=new HashMap<String, String>();
+	public void setTTSConstants(String appId, String apiKey, String secretKey){
+		Map<String, String> ttsmap=new HashMap<String, String>();
 		ttsmap.put("appId", TTSConstants.appId);
 		ttsmap.put("appKey", TTSConstants.apiKey);
 		ttsmap.put("secretKey", TTSConstants.secretKey);
 		
-		initTTSHelper(context);
+		initTTSHelper(ttsmap);
 	}
 	
 	public void releaseBaiduTTSHelper(){
@@ -136,6 +130,7 @@ public class PSTMapView extends PSMapView {
 		if (baiduTTSHelper!=null) {
 			baiduTTSHelper.stop();
 			baiduTTSHelper.release();
+			baiduTTSHelper=null;
 		}
 	}
 	
@@ -154,12 +149,13 @@ public class PSTMapView extends PSMapView {
 				currentPosY=sy;
 				endX=ex;
 				endY=ey;
-				//Log.i(TAG, "----------------onStartAndEndPrepared");
+				
 				if (baiduTTSHelper!=null) {
 					baiduTTSHelper.stop();
 					baiduTTSHelper.speak(voiceDetails[getVoiceIndex("ALREADY_SELECT")]
 							+aimArea.getAimDescribe()
 					+voiceDetails[getVoiceIndex("AS_UR_AIM")]);
+					baiduTTSHelper.speak(voiceDetails[getVoiceIndex("SEARCH_PATH")]);
 				}
 				pstmHandler.sendEmptyMessage(READY_TO_SEARCH);
 			}
@@ -169,6 +165,10 @@ public class PSTMapView extends PSMapView {
 				// TODO Auto-generated method stub
 				clearPath=false;
 				mPathList=pathList;
+				
+				if (baiduTTSHelper!=null) {
+					baiduTTSHelper.speak(voiceDetails[getVoiceIndex("SEARCH_SUCCESS")]);
+				}
 				pstmHandler.sendEmptyMessage(SEARCH_SUCCESS);
 			}
 
@@ -189,6 +189,7 @@ public class PSTMapView extends PSMapView {
 				mPathList=newPathList;
 				if (mPathList.size()<1) {
 					LOCK_VIEW=false;
+					
 					if (baiduTTSHelper!=null) {
 						baiduTTSHelper.stop();
 						baiduTTSHelper.speak(voiceDetails[getVoiceIndex("AT_UR_AIM")]);
@@ -197,9 +198,6 @@ public class PSTMapView extends PSMapView {
 				pstmHandler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
 		});
-//		pathSearcherThread=new Thread(pathSearcher);
-//		postionWatcherThread=new Thread(positionWhatcher);
-		
 	}
 	
 	private int getVoiceIndex(String str){
