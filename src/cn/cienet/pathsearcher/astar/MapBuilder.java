@@ -67,33 +67,17 @@ public class MapBuilder {
     private void checkComplexRateOfMap(MapBean mapBean){
     	
     	int widthOrHeight = Math.max(mapBean.getmWidth(), mapBean.getmHeight());
-    		
-    	if (widthOrHeight >200 && widthOrHeight < 400) {
-			SCALETOREAL=2;
-		}else if (widthOrHeight > 400 && widthOrHeight <600) {
-			SCALETOREAL=3;
-		}else if (widthOrHeight > 600 && widthOrHeight < 800) {
-			SCALETOREAL=4;
-		}else if (widthOrHeight > 800 && widthOrHeight < 1000 ) {
-			SCALETOREAL=5;
-		}else if (widthOrHeight > 1000 && widthOrHeight < 1200 ) {
-			SCALETOREAL=6;
-		}else if (widthOrHeight > 1400 && widthOrHeight < 1600 ) {
-			SCALETOREAL=7;
-		}else if (widthOrHeight > 1800 && widthOrHeight < 2000 ) {
-			SCALETOREAL=8;
-		}else if (widthOrHeight > 2200 && widthOrHeight < 2400 ) {
-			SCALETOREAL=9;
-		}
-//      else if (widthOrHeight > 1250 && widthOrHeight < 1500 ) {
-//			SCALETOREAL=10;
-//		}else if (widthOrHeight > 1500 && widthOrHeight < 1725 ) {
-//			SCALETOREAL=11;
-//		}
-		else {
-			SCALETOREAL=10;
-		}
     	
+    	final int bestWOH=200;
+    	int mScale=1, insertUnit=bestWOH;
+    	while (insertUnit<=2400) {
+    		mScale++;
+    		if (widthOrHeight>bestWOH && widthOrHeight<insertUnit+bestWOH) {
+    			SCALETOREAL=mScale;
+    			break;
+    			}
+    		insertUnit=insertUnit*2;
+    		}
     	Log.i(TAG, "SCALETOREAL:"+SCALETOREAL);
     }
     
