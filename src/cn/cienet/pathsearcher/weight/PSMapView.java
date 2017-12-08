@@ -50,12 +50,12 @@ public class PSMapView extends ScaleImageView {
 	 * 画笔
 	 */
 	private Paint posPaint;
-	private Paint posPaint2;
+	private Paint errAllowedPaint;
 	private Paint aimPaint;
 	private Paint stonePaint;
 	private Paint pathPaint;
-	private Paint textPaint;
-	private Paint textPaint2;
+	private Paint pointLablePaint;
+	private Paint stonesLablePaint;
 	/*
 	 * 路线起止点坐标
 	 */
@@ -92,15 +92,15 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * 清除路线开关
 	 */
-	private boolean clearPath=false;
+	private boolean CLEAR_PATH=false;
 	/*
 	 * 显示障碍物开关
 	 */
-	private boolean showStonesAllowed=false;
+	private boolean SHOW_STONES=false;
 	/*
 	 * 显示定位容错范围
 	 */
-	private boolean showPosErrAllowed=false;
+	private boolean SHOW_ERR_ALLOWED=false;
 	private float locationErrorAllowdRadiu=300;
 	/*
 	 * 目标地参数
@@ -116,7 +116,7 @@ public class PSMapView extends ScaleImageView {
 	protected static final int SEARCH_SUCCESS=2;
 	protected static final int WALK_OUT_OF_PATH=3;
 	
-	private boolean LOCK_VIEW=false;
+	private boolean LOCK_AIM_POINT=false;
 	
 	@SuppressLint("HandlerLeak")
 	private Handler handler=new Handler(){
@@ -131,7 +131,7 @@ public class PSMapView extends ScaleImageView {
 			case READY_TO_SEARCH:
 				//Prepare to search path
 //				pathSearcherThread.start();
-				LOCK_VIEW=true;
+				LOCK_AIM_POINT=true;
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -197,11 +197,11 @@ public class PSMapView extends ScaleImageView {
 		posPaint.setColor(Color.BLUE);
 		posPaint.setAntiAlias(true);
 		
-		posPaint2=new Paint();
-		posPaint2.setStyle(Paint.Style.STROKE);
-		posPaint2.setStrokeWidth((float) 4.0);
-		posPaint2.setColor(Color.YELLOW);
-		posPaint2.setAntiAlias(true);
+		errAllowedPaint=new Paint();
+		errAllowedPaint.setStyle(Paint.Style.STROKE);
+		errAllowedPaint.setStrokeWidth((float) 4.0);
+		errAllowedPaint.setColor(Color.YELLOW);
+		errAllowedPaint.setAntiAlias(true);
 		
 		aimPaint=new Paint();
 		aimPaint.setStyle(Paint.Style.FILL);
@@ -221,17 +221,17 @@ public class PSMapView extends ScaleImageView {
 		pathPaint.setColor(Color.RED);
 		pathPaint.setAntiAlias(true);
 		
-		textPaint=new Paint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setColor(Color.BLACK);
-        textPaint.setAntiAlias(true);
-        textPaint.setTextSize((float) 40.0);
-        textPaint.setTextAlign(Paint.Align.CENTER);
+		pointLablePaint=new Paint(Paint.ANTI_ALIAS_FLAG);
+        pointLablePaint.setColor(Color.BLACK);
+        pointLablePaint.setAntiAlias(true);
+        pointLablePaint.setTextSize((float) 40.0);
+        pointLablePaint.setTextAlign(Paint.Align.CENTER);
         
-        textPaint2=new Paint(Paint.ANTI_ALIAS_FLAG);
-        textPaint2.setColor(Color.WHITE);
-        textPaint2.setAntiAlias(true);
-        textPaint2.setTextSize((float) 60.0);
-        textPaint2.setTextAlign(Paint.Align.CENTER);
+        stonesLablePaint=new Paint(Paint.ANTI_ALIAS_FLAG);
+        stonesLablePaint.setColor(Color.WHITE);
+        stonesLablePaint.setAntiAlias(true);
+        stonesLablePaint.setTextSize((float) 60.0);
+        stonesLablePaint.setTextAlign(Paint.Align.CENTER);
         
         astarPath=new Path();
 	}
@@ -262,7 +262,7 @@ public class PSMapView extends ScaleImageView {
 			@Override
 			public void onStartAndEndPrepared(boolean ifClearPath, float sx, float sy, float ex, float ey) {
 				// TODO Auto-generated method stub
-				clearPath=ifClearPath;
+				CLEAR_PATH=ifClearPath;
 				currentPosX=sx;
 				currentPosY=sy;
 				endX=ex;
@@ -273,7 +273,7 @@ public class PSMapView extends ScaleImageView {
 			@Override
 			public void onSearchingPathComplate(List<int[]> pathList) {
 				// TODO Auto-generated method stub
-				clearPath=false;
+				CLEAR_PATH=false;
 				mPathList=pathList;
 				handler.sendEmptyMessage(SEARCH_SUCCESS);
 			}
@@ -295,7 +295,7 @@ public class PSMapView extends ScaleImageView {
 				mPathList=newPathList;
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 				if (newPathList.size()<1) {
-					LOCK_VIEW=false;
+					LOCK_AIM_POINT=false;
 				}
 			}
 		});
@@ -317,11 +317,11 @@ public class PSMapView extends ScaleImageView {
 	}
 	
 	public void setStonesVisiable(boolean ifShow){
-		showStonesAllowed=ifShow;
+		SHOW_STONES=ifShow;
 	}
 	
 	public void setPosErrVisiable(boolean ifShow){
-		showPosErrAllowed=ifShow;
+		SHOW_ERR_ALLOWED=ifShow;
 	}
 	
 	private float[] fixXY(float x, float y){
@@ -352,13 +352,13 @@ public class PSMapView extends ScaleImageView {
 	
 	private void drawStartPosOnMap(Canvas canvas){
 		drawPointOnMap(canvas, currentPosX, currentPosY, posPaint,
-				true, "start", textPaint,
-				showPosErrAllowed, posPaint2);
+				true, "start", pointLablePaint,
+				SHOW_ERR_ALLOWED, errAllowedPaint);
 	}
 	
 	private void drawEndPosOnMap(Canvas canvas){
 		drawPointOnMap(canvas, endX, endY, posPaint,
-				true, "end", textPaint,
+				true, "end", pointLablePaint,
 				false, null);
 	}
 	
@@ -419,7 +419,7 @@ public class PSMapView extends ScaleImageView {
 						stoneArea.getEndY()/MapBuilder.SCALETOREAL);
 				
 				canvas.drawRect(sfs[0], sfs[1], efs[0], efs[1], stonePaint);
-				canvas.drawText(stoneArea.getAreaName(), (sfs[0] + efs[0]) /2, (sfs[1] + efs[1]) /2, textPaint2);
+				canvas.drawText(stoneArea.getAreaName(), (sfs[0] + efs[0]) /2, (sfs[1] + efs[1]) /2, stonesLablePaint);
 			}
 		}
 	}
@@ -432,7 +432,7 @@ public class PSMapView extends ScaleImageView {
 		matrixValues=new float[9];
 		mMatrix.getValues(matrixValues);
 		
-		if (showStonesAllowed) {
+		if (SHOW_STONES) {
 			drawStonesOnMap(canvas);
 		}
 		
@@ -441,7 +441,7 @@ public class PSMapView extends ScaleImageView {
 		drawStartPosOnMap(canvas);
 		drawEndPosOnMap(canvas);
 		
-		if(clearPath){
+		if(CLEAR_PATH){
 			clearPathFormMap(canvas);
 		}else {
 			drawPathOnMap(canvas);
@@ -465,7 +465,7 @@ public class PSMapView extends ScaleImageView {
 				float y=event.getY();
 				
 //				if (!(pathSearcherThread.isAlive()||postionWatcherThread.isAlive())) {
-				if (!LOCK_VIEW) {
+				if (!LOCK_AIM_POINT) {
 					if (aimAreas!=null) {
 						float[] afs;
 						AimArea aimArea;
