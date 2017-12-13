@@ -226,7 +226,7 @@ public class PSMapView extends ScaleImageView {
         pointLablePaint.setTextAlign(Paint.Align.CENTER);
         
         stonesLablePaint=new Paint(Paint.ANTI_ALIAS_FLAG);
-        stonesLablePaint.setColor(Color.WHITE);
+        stonesLablePaint.setColor(Color.BLACK);
         stonesLablePaint.setAntiAlias(true);
         stonesLablePaint.setTextSize((float) 60.0);
         stonesLablePaint.setTextAlign(Paint.Align.CENTER);

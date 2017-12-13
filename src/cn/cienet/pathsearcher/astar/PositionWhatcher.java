@@ -40,17 +40,17 @@ public class PositionWhatcher implements Runnable{
 				Thread.sleep(walkSpeed);
 				int[] path=pathList.get(i);	
 				
-				if (i%10==0) {//每隔2秒进行一次定位矫正
-					if (!checkIfWalkingOnPath(locationFun(), path)) {
-						//Log.i(TAG, "realPos: "+locationFun()[0]+", "+locationFun()[1]);
-						Message message=new Message();
-						message.what=3;
-						message.arg1=locationFun()[0];
-						message.arg2=locationFun()[1];
-						handler.sendMessage(message);
-						break;
-					}
-				}   
+//				if (i%10==0) {//每隔2秒进行一次定位矫正
+//					if (!checkIfWalkingOnPath(locationFun(), path)) {
+//						//Log.i(TAG, "realPos: "+locationFun()[0]+", "+locationFun()[1]);
+//						Message message=new Message();
+//						message.what=3;
+//						message.arg1=locationFun()[0];
+//						message.arg2=locationFun()[1];
+//						handler.sendMessage(message);
+//						break;
+//					}
+//				}   
 				
 				pathList.remove(i);
 				onPositionWatchListener.onPositionChanged(path[0], path[1], pathList);
