@@ -1,12 +1,8 @@
-package cn.cienet.pathsearcher.astar;
+package cn.cienet.pathsearcher.weight;
 
 import java.util.List;
-//import java.util.Random;
-import java.util.Random;
 
 import android.os.Handler;
-import android.os.Message;
-//import android.os.Message;
 import cn.cienet.pathsearcher.interfaces.OnPositionWatchListener;
 
 public class PositionWhatcher implements Runnable{
@@ -14,11 +10,11 @@ public class PositionWhatcher implements Runnable{
 //	private static final String TAG="PositionWatcher";
 	private OnPositionWatchListener onPositionWatchListener;
 	private List<int[]> pathList;
-	private static final int walkSpeed=300;
-	private Handler handler;
+	private static final int walkSpeed=200;
+//	private Handler handler;
 	
 	public PositionWhatcher(Handler handler){
-		this.handler=handler;
+//		this.handler=handler;
 	}
 	
 	public void setPositionWatcher(OnPositionWatchListener onPositionWatchListener){
@@ -62,26 +58,26 @@ public class PositionWhatcher implements Runnable{
 		}
 	}
 	
-	private boolean checkIfWalkingOnPath(int[] currentPos, int[] shouleBePos ){
-		float distance=(float) Math.sqrt((Math.pow((currentPos[0]-shouleBePos[0]), 2)+Math.pow((currentPos[1]-shouleBePos[1]), 2)));
-		if (distance>MapBuilder.mapBean.getLocationErrorAllowed()*100) {
-			return false;
-		}
-		return true;
-	}
+//	private boolean checkIfWalkingOnPath(int[] currentPos, int[] shouleBePos ){
+//		float distance=(float) Math.sqrt((Math.pow((currentPos[0]-shouleBePos[0]), 2)+Math.pow((currentPos[1]-shouleBePos[1]), 2)));
+//		if (distance>MapBuilder.mapBean.getLocationErrorAllowed()*100) {
+//			return false;
+//		}
+//		return true;
+//	}
 	
-	private int[] locationFun(){
-		int[] location=new int[2];
-		//TODO location by iBeacon or some other thing..
-		
-		//Test
-		Random random=new Random();
-		location[0]=random.nextInt(145)+315;
-		location[1]=random.nextInt(80)+210;
-		
-		return location;
-		
-	}
+//	private int[] locationFun(){
+//		int[] location=new int[2];
+//		//TODO location by iBeacon or some other thing..
+//		
+//		//Test
+//		Random random=new Random();
+//		location[0]=random.nextInt(145)+315;
+//		location[1]=random.nextInt(80)+210;
+//		
+//		return location;
+//		
+//	}
 
 	@Override
 	public void run() {

@@ -1,7 +1,11 @@
-package cn.cienet.pathsearcher.astar;
+package cn.cienet.pathsearcher.weight;
 
 import java.util.List;
 
+import cn.cienet.pathsearcher.astar.AStar;
+import cn.cienet.pathsearcher.astar.MapBuilder;
+import cn.cienet.pathsearcher.astar.Node;
+import cn.cienet.pathsearcher.astar.PathInfo;
 import cn.cienet.pathsearcher.interfaces.OnPathSearchListener;
 
 public class PathSearcher implements Runnable {

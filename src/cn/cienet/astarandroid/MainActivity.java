@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import cn.cienet.pathsearcher.astar.MapBuilder;
-import cn.cienet.pathsearcher.astar.PathSearcher;
 import cn.cienet.pathsearcher.interfaces.OnPointClickListener;
 import cn.cienet.pathsearcher.weight.PSMapView;
+import cn.cienet.pathsearcher.weight.PathSearcher;
 
 public class MainActivity extends Activity {
 	
@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 		psMapView.setCurrentPos(currentPos);
 		//psMapView.setPosErrVisiable(true);
 		//psMapView.setStonesVisiable(true);
-				
+		
 		psMapView.setOnPointClickListener(new OnPointClickListener() {
 			
 			@Override
@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
 						psMapView.getCurrentPos()[1],
 						x, y);
 			}
-		});
+		});		
 	}
 
 	@Override

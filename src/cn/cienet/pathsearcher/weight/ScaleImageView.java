@@ -204,7 +204,7 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 			/**
 			 * 得到初始化缩放的比例
 			 */
-			mInitScale = scale * 2.3f ;
+			mInitScale = scale * 2.1f ;
 			mMidScale = 2*mInitScale ;//双击放大的值
 			mMaxScale = 4*mInitScale ;//放大的最大值
 
