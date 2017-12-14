@@ -65,4 +65,11 @@ public class MainActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		psMapView.release();
+	}
+	
 }

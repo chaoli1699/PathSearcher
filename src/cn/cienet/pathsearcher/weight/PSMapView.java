@@ -12,12 +12,14 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -82,12 +84,10 @@ public class PSMapView extends ScaleImageView {
 	 * 寻路线程
 	 */
 	private PathSearcher pathSearcher;
-//	private Thread pathSearcherThread;
 	/*
 	 * 循迹线程
 	 */
 	private PositionWhatcher positionWhatcher;
-//	private Thread postionWatcherThread;
 	/*
 	 * 清除路线开关
 	 */
@@ -133,18 +133,14 @@ public class PSMapView extends ScaleImageView {
 				break;
 			case READY_TO_SEARCH:
 				//Prepare to search path
-//				pathSearcherThread.start();
 				LOCK_AIM_POINT=true;
 				aimPaint.setColor(Color.LTGRAY);
-				if (!animationSet.isStarted()||animationSet.isPaused()){
-					animationSet.start();
-				}
+				startAnimator();
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
 				//Walk to aim position
 				positionWhatcher.setPathList(mPathList);
-//				postionWatcherThread.start();
 				THREAD_POOL_EXECUTOR.execute(positionWhatcher);
 				break;
 			case WALK_OUT_OF_PATH:
@@ -293,6 +289,28 @@ public class PSMapView extends ScaleImageView {
 		});
 	}
 	
+	@TargetApi(Build.VERSION_CODES.KITKAT)
+	private void startAnimator(){
+		if (!animationSet.isStarted()||animationSet.isPaused()) {
+			animationSet.start();
+		}
+	}
+	
+	@TargetApi(Build.VERSION_CODES.KITKAT)
+	private void pauseAnimator(){
+		if (animationSet.isRunning()) {
+			animationSet.pause();
+		}
+	}
+	
+	public void release(){
+		if (animationSet!=null) {
+			pauseAnimator();
+			animationSet.cancel();
+			animationSet=null;
+		}
+	}
+	
 	public void setPathSearcher(PathSearcher pathSearcher){
 		
 		this.pathSearcher=pathSearcher;
@@ -334,21 +352,16 @@ public class PSMapView extends ScaleImageView {
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
-				//handler.sendEmptyMessage(JUST_REFRESH_VIEW);
+				
 				if (newPathList.size()<1) {
 					LOCK_AIM_POINT=false;
 					aimPaint.setColor(Color.RED);
-					if (animationSet.isRunning()) {
-						endPosPaint.setAlpha(0);
-						animationSet.pause();
-					}
+					endPosPaint.setAlpha(0);
+					pauseAnimator();
 				}
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
 		});
-		
-//		pathSearcherThread=new Thread(pathSearcher);
-//		postionWatcherThread=new Thread(positionWhatcher);
 	}
 	
 	public void setCurrentPos(float[] pos){
