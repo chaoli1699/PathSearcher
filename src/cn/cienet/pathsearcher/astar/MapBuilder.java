@@ -69,7 +69,7 @@ public class MapBuilder {
     	
     	int widthOrHeight = Math.max(mapBean.getmWidth(), mapBean.getmHeight());
     	
-    	final int bestWOH=200;
+    	final int bestWOH=300;
     	int mScale=1, insertUnit=bestWOH;
     	while (insertUnit<=2400) {
     		mScale++;

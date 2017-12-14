@@ -210,7 +210,7 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 
 			//将图片移动到控件的中心
 			int dx = width/2 - intrinsicWidth/2 ;
-			int dy = height/2 - intrinsicHeight ;
+			int dy = height/2 - intrinsicHeight/2 ;
 			//将一些参数设置到图片或控件上 设置平移缩放 旋转
 			mMatrix.postTranslate(dx, dy);
 			mMatrix.postScale(mInitScale, mInitScale, 0, 0);//以控件的中心进行缩放
