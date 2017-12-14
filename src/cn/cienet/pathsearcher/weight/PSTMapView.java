@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import cn.cienet.baidutts.util.BaiduTTSHelper;
-import cn.cienet.pathsearcher.astar.PathSearcher;
-import cn.cienet.pathsearcher.astar.PositionWhatcher;
 import cn.cienet.pathsearcher.bean.VoiceBean;
 import cn.cienet.pathsearcher.interfaces.OnPathSearchListener;
 import cn.cienet.pathsearcher.interfaces.OnPositionWatchListener;
@@ -56,6 +55,10 @@ public class PSTMapView extends PSMapView {
 			case READY_TO_SEARCH:
 				//Prepare to search path
 				LOCK_AIM_POINT=true;
+				aimPaint.setColor(Color.LTGRAY);
+				if (!animatorSet.isStarted()||animatorSet.isPaused()) {
+					animatorSet.start();
+				}
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -132,6 +135,10 @@ public class PSTMapView extends PSMapView {
 			baiduTTSHelper.release();
 			baiduTTSHelper=null;
 		}
+		
+		if (animatorSet.isRunning()) {
+			animatorSet.cancel();
+		}
 	}
 	
 	public void setPathSearcher(PathSearcher pathSearcher) {
@@ -189,6 +196,11 @@ public class PSTMapView extends PSMapView {
 				mPathList=newPathList;
 				if (mPathList.size()<1) {
 					LOCK_AIM_POINT=false;
+					
+					if (animatorSet.isRunning()) {
+						endPosPaint.setAlpha(0);
+						animatorSet.pause();
+					}
 					
 					if (baiduTTSHelper!=null) {
 						baiduTTSHelper.stop();

@@ -5,10 +5,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import cn.cienet.pathsearcher.astar.MapBuilder;
-import cn.cienet.pathsearcher.astar.PathSearcher;
 import cn.cienet.pathsearcher.interfaces.OnPointClickListener;
 import cn.cienet.pathsearcher.utils.TTSConstants;
 import cn.cienet.pathsearcher.weight.PSTMapView;
+import cn.cienet.pathsearcher.weight.PathSearcher;
 
 public class MainActivity extends Activity {
 	

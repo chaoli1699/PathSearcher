@@ -8,6 +8,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.animation.AnimatorSet;
+import android.animation.ValueAnimator;
+import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
@@ -22,8 +25,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import cn.cienet.pathsearcher.astar.MapBuilder;
-import cn.cienet.pathsearcher.astar.PathSearcher;
-import cn.cienet.pathsearcher.astar.PositionWhatcher;
 import cn.cienet.pathsearcher.bean.AimArea;
 import cn.cienet.pathsearcher.bean.StoneArea;
 import cn.cienet.pathsearcher.interfaces.OnPathSearchListener;
@@ -46,9 +47,10 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * »­±Ê
 	 */
-	private Paint posPaint;
+	private Paint currentPosPaint;
+	protected Paint endPosPaint;
 	private Paint errAllowedPaint;
-	private Paint aimPaint;
+	protected Paint aimPaint;
 	private Paint stonePaint;
 	private Paint pathPaint;
 	private Paint pointLablePaint;
@@ -106,13 +108,18 @@ public class PSMapView extends ScaleImageView {
 	protected List<AimArea> aimAreas;
 	private List<StoneArea> stoneAreas;
 	
-	protected static final float pointRadiu=20;
-	protected static final int JUST_REFRESH_VIEW=0;
-	protected static final int READY_TO_SEARCH=1;
-	protected static final int SEARCH_SUCCESS=2;
-	protected static final int WALK_OUT_OF_PATH=3;
+	protected static final int DEFAULT_RADIU = 20;
+	protected static final int JUST_REFRESH_VIEW = 0;
+	protected static final int READY_TO_SEARCH = 1;
+	protected static final int SEARCH_SUCCESS = 2;
+	protected static final int WALK_OUT_OF_PATH = 3;
 	
 	protected boolean LOCK_AIM_POINT=false;
+	
+	protected AnimatorSet animatorSet;
+	protected ValueAnimator endPointAnimator;
+	private static final int END_ANIMATOR_DURATION=1000;
+	private int endPointRadiu = DEFAULT_RADIU;
 	
 	@SuppressLint("HandlerLeak")
 	private Handler handler=new Handler(){
@@ -127,7 +134,10 @@ public class PSMapView extends ScaleImageView {
 			case READY_TO_SEARCH:
 				//Prepare to search path
 				LOCK_AIM_POINT=true;
-				aimPaint.setColor(Color.GRAY);
+				aimPaint.setColor(Color.LTGRAY);
+				if (!animatorSet.isStarted()||animatorSet.isPaused()) {
+					animatorSet.start();
+				}
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -183,14 +193,21 @@ public class PSMapView extends ScaleImageView {
 		// TODO Auto-generated constructor stub
 		initPaint();
 		initMapBean();
+		initAnimator();
 	}
 	
 	protected void initPaint(){
-		posPaint=new Paint();
-		posPaint.setStyle(Paint.Style.FILL);
-		posPaint.setStrokeWidth((float) 4.0);
-		posPaint.setColor(Color.BLUE);
-		posPaint.setAntiAlias(true);
+		currentPosPaint=new Paint();
+		currentPosPaint.setStyle(Paint.Style.FILL);
+		currentPosPaint.setStrokeWidth((float) 4.0);
+		currentPosPaint.setColor(Color.BLUE);
+		currentPosPaint.setAntiAlias(true);
+		
+		endPosPaint=new Paint();
+		endPosPaint.setStyle(Paint.Style.FILL);
+		endPosPaint.setStrokeWidth((float) 4.0);
+		endPosPaint.setColor(Color.RED);
+		endPosPaint.setAntiAlias(true);
 		
 		errAllowedPaint=new Paint();
 		errAllowedPaint.setStyle(Paint.Style.STROKE);
@@ -249,6 +266,31 @@ public class PSMapView extends ScaleImageView {
 		}
 	}
 	
+	protected void initAnimator(){
+		setEndPointAnimator();
+		
+		animatorSet=new AnimatorSet();
+		animatorSet.play(endPointAnimator);
+	}
+		 	
+	private void setEndPointAnimator(){
+		 		
+		endPointAnimator=ValueAnimator.ofInt(DEFAULT_RADIU, DEFAULT_RADIU*3);
+		endPointAnimator.setDuration(END_ANIMATOR_DURATION);
+		endPointAnimator.setRepeatCount(ValueAnimator.INFINITE);
+		endPointAnimator.addUpdateListener(new AnimatorUpdateListener() {
+			
+			@Override
+			public void onAnimationUpdate(ValueAnimator animation) {
+				// TODO Auto-generated method stub
+				endPointRadiu=(Integer) animation.getAnimatedValue();
+				int alpha=(int) (255-(endPointRadiu*255)/(DEFAULT_RADIU*3));
+				endPosPaint.setAlpha(alpha);
+				invalidate();
+			}
+		});
+	}
+	
 	public void setPathSearcher(PathSearcher pathSearcher){
 		
 		this.pathSearcher=pathSearcher;
@@ -294,6 +336,10 @@ public class PSMapView extends ScaleImageView {
 				if (mPathList.size()<1) {
 					LOCK_AIM_POINT=false;
 					aimPaint.setColor(Color.RED);
+					if (animatorSet.isRunning()) {
+						endPosPaint.setAlpha(0);
+						animatorSet.pause();
+					}
 				}
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
@@ -328,13 +374,13 @@ public class PSMapView extends ScaleImageView {
 	}
 	
 	private void drawPointOnMap(Canvas canvas,
-			float x, float y, Paint posPaint,
+			float x, float y, float radiu, Paint posPaint,
 			boolean showlable, String lable, Paint textPaint,
 			boolean showPosErrAllowed, Paint errAllowedPaint){
 		
 		if (x > -1 &&y > -1) {
 			float[] fs=fixXY(x, y);
-			canvas.drawCircle(fs[0], fs[1], pointRadiu, posPaint);
+			canvas.drawCircle(fs[0], fs[1], radiu, posPaint);
 			
 			if (showlable) {
 				canvas.drawText(lable, fs[0], fs[1], textPaint);
@@ -347,14 +393,14 @@ public class PSMapView extends ScaleImageView {
 	}
 	
 	private void drawStartPosOnMap(Canvas canvas){
-		drawPointOnMap(canvas, currentPosX, currentPosY, posPaint,
-				true, "start", pointLablePaint,
+		drawPointOnMap(canvas, currentPosX, currentPosY, DEFAULT_RADIU, currentPosPaint,
+				false, "start", pointLablePaint,
 				SHOW_ERR_ALLOWED, errAllowedPaint);
 	}
 	
 	private void drawEndPosOnMap(Canvas canvas){
-		drawPointOnMap(canvas, endPosX, endPosY, posPaint,
-				true, "end", pointLablePaint,
+		drawPointOnMap(canvas, endPosX, endPosY, endPointRadiu, endPosPaint,
+				false, "end", pointLablePaint,
 				false, null);
 	}
 	
@@ -393,7 +439,7 @@ public class PSMapView extends ScaleImageView {
 				cx=aimArea.getPointX()/MapBuilder.SCALETOREAL;
 				cy=aimArea.getPointY()/MapBuilder.SCALETOREAL;
 				
-				drawPointOnMap(canvas, cx, cy, aimPaint,
+				drawPointOnMap(canvas, cx, cy, DEFAULT_RADIU, aimPaint,
 						false, null, null,
 						false, null);
 			}
@@ -468,7 +514,7 @@ public class PSMapView extends ScaleImageView {
 							afs=fixXY(aimArea.getPointX()/MapBuilder.SCALETOREAL,
 									aimArea.getPointY()/MapBuilder.SCALETOREAL);
 							double distance=Math.sqrt((Math.pow((x-afs[0]), 2)+Math.pow((y-afs[1]),2)));
-							if (distance < (pointRadiu+10)) {
+							if (distance < (DEFAULT_RADIU+10)) {
 								onPointClickListener.onClick(aimAreas.get(i).getPointX(), aimAreas.get(i).getPointY());
 								break;
 							}

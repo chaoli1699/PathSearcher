@@ -1,10 +1,8 @@
-package cn.cienet.pathsearcher.astar;
+package cn.cienet.pathsearcher.weight;
 
 import java.util.List;
-//import java.util.Random;
 
 import android.os.Handler;
-//import android.os.Message;
 import cn.cienet.pathsearcher.interfaces.OnPositionWatchListener;
 
 public class PositionWhatcher implements Runnable{
