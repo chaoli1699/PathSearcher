@@ -56,9 +56,7 @@ public class PSTMapView extends PSMapView {
 				//Prepare to search path
 				LOCK_AIM_POINT=true;
 				aimPaint.setColor(Color.LTGRAY);
-				if (!animatorSet.isStarted()||animatorSet.isPaused()) {
-					animatorSet.start();
-				}
+				startAnimator();
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -128,16 +126,15 @@ public class PSTMapView extends PSMapView {
 		initTTSHelper(ttsmap);
 	}
 	
-	public void releaseBaiduTTSHelper(){
+	@Override
+	public void release() {
+		// TODO Auto-generated method stub
+		super.release();
 		
 		if (baiduTTSHelper!=null) {
 			baiduTTSHelper.stop();
 			baiduTTSHelper.release();
 			baiduTTSHelper=null;
-		}
-		
-		if (animatorSet.isRunning()) {
-			animatorSet.cancel();
 		}
 	}
 	
@@ -196,11 +193,9 @@ public class PSTMapView extends PSMapView {
 				mPathList=newPathList;
 				if (mPathList.size()<1) {
 					LOCK_AIM_POINT=false;
-					
-					if (animatorSet.isRunning()) {
-						endPosPaint.setAlpha(0);
-						animatorSet.pause();
-					}
+					aimPaint.setColor(Color.RED);
+					endPosPaint.setAlpha(0);
+					pauseAnimator();
 					
 					if (baiduTTSHelper!=null) {
 						baiduTTSHelper.stop();

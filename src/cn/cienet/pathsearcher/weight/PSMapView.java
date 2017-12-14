@@ -12,12 +12,14 @@ import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -135,9 +137,7 @@ public class PSMapView extends ScaleImageView {
 				//Prepare to search path
 				LOCK_AIM_POINT=true;
 				aimPaint.setColor(Color.LTGRAY);
-				if (!animatorSet.isStarted()||animatorSet.isPaused()) {
-					animatorSet.start();
-				}
+				startAnimator();
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -291,6 +291,20 @@ public class PSMapView extends ScaleImageView {
 		});
 	}
 	
+	@TargetApi(Build.VERSION_CODES.KITKAT)
+	protected void startAnimator(){
+		if (!animatorSet.isStarted()||animatorSet.isPaused()) {
+			animatorSet.start();
+		}
+	}
+	
+	@TargetApi(Build.VERSION_CODES.KITKAT)
+	protected void pauseAnimator(){
+		if (animatorSet.isRunning()) {
+			animatorSet.pause();
+		}
+	}
+	
 	public void setPathSearcher(PathSearcher pathSearcher){
 		
 		this.pathSearcher=pathSearcher;
@@ -332,14 +346,12 @@ public class PSMapView extends ScaleImageView {
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
-//				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
+				
 				if (mPathList.size()<1) {
 					LOCK_AIM_POINT=false;
 					aimPaint.setColor(Color.RED);
-					if (animatorSet.isRunning()) {
-						endPosPaint.setAlpha(0);
-						animatorSet.pause();
-					}
+					endPosPaint.setAlpha(0);
+					pauseAnimator();
 				}
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
@@ -364,6 +376,14 @@ public class PSMapView extends ScaleImageView {
 	
 	public void setPosErrVisiable(boolean ifShow){
 		SHOW_ERR_ALLOWED=ifShow;
+	}
+	
+	public void release(){
+		if (animatorSet!=null) {
+			pauseAnimator();
+			animatorSet.cancel();
+			animatorSet=null;
+		}
 	}
 	
 	protected float[] fixXY(float x, float y){

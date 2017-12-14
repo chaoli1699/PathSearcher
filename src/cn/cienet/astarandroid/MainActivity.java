@@ -67,7 +67,7 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		// TODO Auto-generated method stub
-		pstMapView.releaseBaiduTTSHelper();
+		pstMapView.release();
 		super.onDestroy();
 	}
 	
