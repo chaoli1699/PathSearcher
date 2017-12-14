@@ -127,6 +127,7 @@ public class PSMapView extends ScaleImageView {
 			case READY_TO_SEARCH:
 				//Prepare to search path
 				LOCK_AIM_POINT=true;
+				aimPaint.setColor(Color.GRAY);
 				THREAD_POOL_EXECUTOR.execute(pathSearcher);
 				break;
 			case SEARCH_SUCCESS:
@@ -289,9 +290,10 @@ public class PSMapView extends ScaleImageView {
 				currentPosX=x;
 				currentPosY=y;
 				mPathList=newPathList;
-				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
+//				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 				if (mPathList.size()<1) {
 					LOCK_AIM_POINT=false;
+					aimPaint.setColor(Color.RED);
 				}
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
