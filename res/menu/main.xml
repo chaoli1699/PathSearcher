@@ -1,17 +1,83 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="cn.cienet.astarandroid.MainActivity" >
-
-    <item
-        android:id="@+id/map1"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/map1"/>
     
     <item
-        android:id="@+id/map2"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/map2"/>
+        android:id="@+id/map_list"
+        android:title="@string/map_list"
+        android:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_dialog_map">
+        
+        <menu >
+          <item
+            android:id="@+id/map1"
+            android:orderInCategory="100"
+            android:title="@string/map1"/>
+    
+          <item
+            android:id="@+id/map2"
+            android:orderInCategory="100"
+            android:title="@string/map2"/>  
+        </menu>
+    </item>     
+    
+    <item
+        android:id="@+id/stone_switch"
+        android:title="@string/stone_switch"
+        android:showAsAction="never" >
+
+        <menu >
+          <item
+            android:id="@+id/stone_on"
+            android:orderInCategory="100"
+            android:title="@string/stone_on"/>
+    
+          <item
+            android:id="@+id/stone_off"
+            android:orderInCategory="100"
+            android:title="@string/stone_off"/>  
+        </menu>       
+    </item>
+    
+    <item
+        android:id="@+id/err_allowed"
+        android:title="@string/err_allowed"
+        android:showAsAction="never" >
+
+        <menu >
+          <item
+            android:id="@+id/err_on"
+            android:orderInCategory="100"
+            android:title="@string/err_on"/>
+    
+          <item
+            android:id="@+id/err_off"
+            android:orderInCategory="100"
+            android:title="@string/err_off"/>  
+        </menu>       
+    </item>
+
+   <item
+        android:id="@+id/manage_data"
+        android:title="@string/manage_data"
+        android:showAsAction="never" >
+
+        <menu >
+          <item
+            android:id="@+id/del_map"
+            android:orderInCategory="100"
+            android:title="@string/del_mapFile"/>
+    
+          <item
+            android:id="@+id/del_db"
+            android:orderInCategory="100"
+            android:title="@string/del_dbFile"/>  
+            
+          <item
+            android:id="@+id/reset_mapInfo"
+            android:orderInCategory="100"
+            android:title="@string/reset_mapInfo"/> 
+        </menu>       
+    </item>
 
 </menu>

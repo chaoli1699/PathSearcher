@@ -3,6 +3,7 @@ package cn.cienet.pathsearcher.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -45,6 +46,12 @@ public class MapBeanDao {
 			e.printStackTrace();
 		}
 		return null;	
+	}
+	
+	public int resetMapInfo(Context context, ContentValues values){
+		
+		
+		return 0;
 	}
 	
 	private List<StoneArea> getStoneListByMapId(SQLiteDatabase db,String mapId){

@@ -9,13 +9,14 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
+import cn.cienet.pathsearcher.interfaces.OnDelFileListener;
 
 public class DBManager {
 	
 	private static final String TAG="SQLManager";
 	private static final String dbName="android_astar.db";
 	private static final String dbPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/cn.cienet.astar/database/";
-	private File dbFile;
+	//private File dbFile;
 	
 	private volatile static DBManager instance;
 	
@@ -36,14 +37,14 @@ public class DBManager {
 	
 	public SQLiteDatabase openDatabase(Context context){
 		//filePath=context.getDatabasePath(fileName).getPath();
-	    dbFile=new File(dbPath,dbName);
+	    File dbFile=new File(dbPath,dbName);
 		
 		if(dbFile.exists()){
 			Log.i(TAG, "file:"+dbPath+dbName+" exists");
 			return SQLiteDatabase.openOrCreateDatabase(dbFile,null);
 		}else{
 			try {
-				copyAssetsToDB(context);
+				copyAssetsToDB(context, dbFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -53,12 +54,30 @@ public class DBManager {
 		return openDatabase(context);
 	}
 	
+	public void deleteDbFile(OnDelFileListener onDelFileListener){
+		File dbFile=new File(dbPath, dbName);
+		if (dbFile.exists()) {
+			boolean result = dbFile.delete();
+			String str;
+    		if (result) {
+    		    str="Del local database success!";
+				Log.i(TAG, str);
+				onDelFileListener.onDelReuslt(true, str);
+				
+			}else {
+				str="Del local database fail!";
+				Log.i(TAG, str);
+				onDelFileListener.onDelReuslt(false, str);
+			}
+		}
+	}
+	
 	/**
      * 将assets下的资源复制到应用程序的databases目录下
      * @param context 上下文
      * @param dbName assets下的资源的文件名
      */
-    private void copyAssetsToDB(Context context) throws IOException {
+    private void copyAssetsToDB(Context context, File dbFile) throws IOException {
         
         if(dbFile.getParentFile().mkdirs()){
         	Log.i(TAG, "Create file success!");

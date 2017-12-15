@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.util.Log;
 import cn.cienet.pathsearcher.bean.MapBean;
 import cn.cienet.pathsearcher.bean.StoneArea;
+import cn.cienet.pathsearcher.interfaces.OnDelFileListener;
 import cn.cienet.pathsearcher.sql.BeanFactory;
 
 public class MapBuilder {
@@ -94,6 +95,23 @@ public class MapBuilder {
     	Log.i(TAG, "SCALETOREAL:"+SCALETOREAL);
     }
     
+    public void deleteMapFile(OnDelFileListener onDelFileListener){
+    	File mapFile=new File(mapPath, mapName);
+    	if (mapFile.exists()) {
+    		boolean result = mapFile.delete();
+    		String str;
+    		if (result) {
+    		    str="Del current map success!";
+				Log.i(TAG, str);
+				onDelFileListener.onDelReuslt(true, str);
+				
+			}else {
+				str="Del current map fail!";
+				Log.i(TAG, str);
+				onDelFileListener.onDelReuslt(false, str);
+			}
+		}
+    }
     
     private void saveMapToLocalFile(int[][] map)throws IOException{
     	File mapFile=new File(mapPath,mapName);
