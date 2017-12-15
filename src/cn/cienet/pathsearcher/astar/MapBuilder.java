@@ -23,7 +23,7 @@ public class MapBuilder {
     private volatile static MapBuilder instance;
     
     private static final String TAG="MapBuilder";
-    private static final String mapName="astar_map.txt";
+    private String mapName="astar_map.txt";
     private static final String mapPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/cn.cienet.astar/map/";
     
     private MapBuilder(){}
@@ -39,23 +39,36 @@ public class MapBuilder {
     	return instance;
     }
     
+    private void initMapName(int mapId){
+    	StringBuffer sb=new StringBuffer();
+    	sb.append("astar_map");
+    	sb.append(mapId);
+    	sb.append(".txt");
+    	mapName=sb.toString();
+    }
+    
     /**
      * 初始化地图
      * @param context
      * @param mapId
-     */
+     */ 
     public void initMap(Context context,int mapId){
-    	try {
-    		
-    		mapBean=new BeanFactory().getMapBean().getMapBeanById(context, mapId+"");
-    		if (mapBean!=null) {
-    			checkComplexRateOfMap(mapBean);
-    			
-    			if(readMapFromLocalFile()<0){
-    				saveMapToLocalFile(createMap(mapBean));
-    				initMap(context,mapId);
-    			}
-    			Log.i(TAG,"Load map successed!");
+    	
+    	initMapName(mapId);
+    	mapBean=new BeanFactory().getMapBean().getMapBeanById(context, mapId+"");
+    	
+    	if (mapBean==null) {
+			return ;
+		}
+    	
+    	checkComplexRateOfMap(mapBean);
+    	
+    	try {    		
+			if(readMapFromLocalFile()<0){
+				saveMapToLocalFile(createMap(mapBean));
+				initMap(context,mapId);
+			}else {
+				Log.i(TAG,"Load map successed!");
 			}
 			
 		} catch (IOException e) {
@@ -180,18 +193,6 @@ public class MapBuilder {
 		
 		return map;
 	}
-	
-	/*
-	private void setStones(int[][] map,int width,int height,int ax,int ay,int bx,int by){
-		for(int i=0;i<height;i++){
-			for(int j=0;j<width;j++){
-				if(j>=ax&&j<=bx&&i>=ay&&i<=by){
-					map[i][j]=1;
-				}
-			}
-		}
-	}
-	*/
 	
 	/**
 	 * 输出地图数组
