@@ -14,12 +14,13 @@ public class MainActivity extends BaseActivity {
 	
 	private PSMapView psMapView;
 	
-	//private static final String TAG="MainActivity";
+	private static final String TAG="MainActivity";
 	private PathSearcher pathSearcher;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		initActionBar(TAG);
 		setContentView(R.layout.activity_main);
 		
 		psMapView=(PSMapView) findViewById(R.id.main_mapView);
@@ -80,7 +81,7 @@ public class MainActivity extends BaseActivity {
 			psMapView.setPosErrVisiable(false);
 			break;
 		case R.id.del_map:
-			MapBuilder.build().deleteMapFile(new OnDelFileListener() {
+			MapBuilder.build().delMapFile(new OnDelFileListener() {
 				
 				@Override
 				public void onDelReuslt(boolean result, String msg) {

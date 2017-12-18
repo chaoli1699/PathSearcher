@@ -1,12 +1,10 @@
 package cn.cienet.pathsearcher.astar;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.Gson;
 
 import android.content.Context;
 import android.os.Environment;
@@ -15,6 +13,7 @@ import cn.cienet.pathsearcher.bean.MapBean;
 import cn.cienet.pathsearcher.bean.StoneArea;
 import cn.cienet.pathsearcher.interfaces.OnDelFileListener;
 import cn.cienet.pathsearcher.sql.BeanFactory;
+import cn.cienet.pathsearcher.utils.FileUtils;
 
 public class MapBuilder {
 	
@@ -49,6 +48,14 @@ public class MapBuilder {
     }
     
     /**
+     * 读取上次使用过的地图（默认mapID=1）
+     * @param context
+     */
+    public void initMap(Context context){
+    	initMap(context, getLastMapId());
+    }
+    
+    /**
      * 初始化地图
      * @param context
      * @param mapId
@@ -56,7 +63,7 @@ public class MapBuilder {
     public void initMap(Context context,int mapId){
     	
     	initMapName(mapId);
-    	mapBean=new BeanFactory().getMapBean().getMapBeanById(context, mapId+"");
+    	mapBean=initMapBean(context, mapId+"");
     	
     	if (mapBean==null) {
 			return ;
@@ -64,9 +71,10 @@ public class MapBuilder {
     	
     	checkComplexRateOfMap(mapBean);
     	
-    	try {    		
-			if(readMapFromLocalFile()<0){
-				saveMapToLocalFile(createMap(mapBean));
+    	try {  
+    		map=FileUtils.read2RateArrayFromLocalFile(mapPath, mapName);
+			if(map==null){
+				FileUtils.write2RateArray2File(mapPath, mapName, createMap(mapBean));
 				initMap(context,mapId);
 			}else {
 				Log.i(TAG,"Load map successed!");
@@ -76,6 +84,33 @@ public class MapBuilder {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+    }
+    
+    public void delMapFile(OnDelFileListener onDelFileListener){
+    	FileUtils.deleteFile(mapPath, mapName, onDelFileListener);
+    }
+    
+    public void markCurrentMap(int mapId){
+    	try {
+    		FileUtils.writeString2LocalFile(mapPath, "mapMark", "last mapId is: "+mapId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+    
+    private int getLastMapId(){
+    	try {
+			String mark=FileUtils.readStringFromLocalFile(mapPath, "mapMark");
+			if (mark!=null) {
+				String[] temp=mark.split(":");
+				return Integer.valueOf(temp[1].trim());
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return 1;
     }
     
     private void checkComplexRateOfMap(MapBean mapBean){
@@ -95,76 +130,24 @@ public class MapBuilder {
     	Log.i(TAG, "SCALETOREAL:"+SCALETOREAL);
     }
     
-    public void deleteMapFile(OnDelFileListener onDelFileListener){
-    	File mapFile=new File(mapPath, mapName);
-    	if (mapFile.exists()) {
-    		boolean result = mapFile.delete();
-    		String str;
-    		if (result) {
-    		    str="Del current map success!";
-				Log.i(TAG, str);
-				onDelFileListener.onDelReuslt(true, str);
-				
-			}else {
-				str="Del current map fail!";
-				Log.i(TAG, str);
-				onDelFileListener.onDelReuslt(false, str);
-			}
-		}
-    }
-    
-    private void saveMapToLocalFile(int[][] map)throws IOException{
-    	File mapFile=new File(mapPath,mapName);
+    private MapBean initMapBean(Context context, String mapId){
     	
-    	if(!mapFile.exists()){
-    		if(mapFile.getParentFile().mkdirs()){
-    			Log.i(TAG,"Create mapFile successed!");
-    		}else{
-    			Log.i(TAG, "Create mapFile failed!");
+    	try {
+    		String content=FileUtils.readStringFromLocalFile(mapPath, "mapBean"+mapId);
+    		if (content==null) {
+    			MapBean mapBean=new BeanFactory().getMapBean().getMapBeanById(context, mapId);
+    			content=new Gson().toJson(mapBean);
+    			FileUtils.writeString2LocalFile(mapPath, "mapBean"+mapId, content);
     		}
     		
-    		FileWriter  fo=new FileWriter (mapFile);
-			for(int i=0;i<map.length;i++){
-				for(int j=0;j<map[i].length;j++){
-					fo.write(map[i][j]+"\t");
-				}
-				fo.write("\r\n");
-			}
-			fo.flush();
-			fo.close();
-    	}
-    }
-    
-    private int readMapFromLocalFile() throws IOException{
+        	return new Gson().fromJson(content, MapBean.class);
+
+		} catch (IOException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
     	
-    	File mapFile=new File(mapPath,mapName);
-    	
-    	if(!mapFile.exists()){
-    		return -1;
-    	}
-    	
-    	BufferedReader in=new BufferedReader(new FileReader(mapFile));
-    	String line;
-    	
-    	@SuppressWarnings({ "rawtypes", "unchecked" })
-		List<String[]> tempList =new ArrayList() ;
-    	String[] temp = null;
-    	
-    	while((line=in.readLine())!=null){
-    		temp = line.split("\t");
-    		tempList.add(temp);
-    	}
-    	in.close();
-    	
-        map=new int[tempList.size()][temp.length];
-        
-        for(int i=tempList.size()-1;i>=0;i--){
-        	for(int j=0;j<temp.length;j++){
-        		map[i][j]=Integer.parseInt(tempList.get(i)[j]);
-        	}
-        }
-    	
-    	return 0;
+    	return null;	
     }
     
     /**

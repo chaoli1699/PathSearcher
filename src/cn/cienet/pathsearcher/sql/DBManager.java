@@ -1,15 +1,14 @@
 package cn.cienet.pathsearcher.sql;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
 import cn.cienet.pathsearcher.interfaces.OnDelFileListener;
+import cn.cienet.pathsearcher.utils.FileUtils;
 
 public class DBManager {
 	
@@ -37,14 +36,14 @@ public class DBManager {
 	
 	public SQLiteDatabase openDatabase(Context context){
 		//filePath=context.getDatabasePath(fileName).getPath();
-	    File dbFile=new File(dbPath,dbName);
+	    File dbFile=new File(dbPath, dbName);
 		
 		if(dbFile.exists()){
-			Log.i(TAG, "file:"+dbPath+dbName+" exists");
-			return SQLiteDatabase.openOrCreateDatabase(dbFile,null);
+			Log.i(TAG, "file:"+ dbName+ " exists");
+			return SQLiteDatabase.openOrCreateDatabase(dbFile, null);
 		}else{
 			try {
-				copyAssetsToDB(context, dbFile);
+				FileUtils.copyAssetsToDB(context, dbPath, dbName);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -55,50 +54,9 @@ public class DBManager {
 	}
 	
 	public void deleteDbFile(OnDelFileListener onDelFileListener){
-		File dbFile=new File(dbPath, dbName);
-		if (dbFile.exists()) {
-			boolean result = dbFile.delete();
-			String str;
-    		if (result) {
-    		    str="Del local database success!";
-				Log.i(TAG, str);
-				onDelFileListener.onDelReuslt(true, str);
-				
-			}else {
-				str="Del local database fail!";
-				Log.i(TAG, str);
-				onDelFileListener.onDelReuslt(false, str);
-			}
-		}
+		FileUtils.deleteFile(dbPath, dbName, onDelFileListener);
 	}
 	
-	/**
-     * 将assets下的资源复制到应用程序的databases目录下
-     * @param context 上下文
-     * @param dbName assets下的资源的文件名
-     */
-    private void copyAssetsToDB(Context context, File dbFile) throws IOException {
-        
-        if(dbFile.getParentFile().mkdirs()){
-        	Log.i(TAG, "Create file success!");
-        }else{
-        	Log.i(TAG, "Create file failed!");
-        }
-        
-        //打开assest文件，获得输入流
-        InputStream is = context.getClassLoader().getResourceAsStream("assets/"+dbName);
-        //获得写入文件的输出流
-        FileOutputStream fos = new FileOutputStream(dbFile);
-
-        byte[] data = new byte[2 * 1024];
-        int len;
-        while ((len = is.read(data)) > 0){
-            fos.write(data, 0, len);
-        }
-
-        fos.flush();
-        is.close();
-        fos.close();
-    }
+	
 
 }
