@@ -35,7 +35,6 @@ import cn.cienet.pathsearcher.bean.StoneArea;
 import cn.cienet.pathsearcher.interfaces.OnPathSearchListener;
 import cn.cienet.pathsearcher.interfaces.OnPointClickListener;
 import cn.cienet.pathsearcher.interfaces.OnPositionWatchListener;
-import cn.cienet.pathsearcher.utils.FileUtils;
 
 public class PSMapView extends ScaleImageView {
 	

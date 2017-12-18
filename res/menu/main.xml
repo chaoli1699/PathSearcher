@@ -56,6 +56,13 @@
             android:title="@string/err_off"/>  
         </menu>       
     </item>
+    
+    <item
+        android:id="@+id/edit_unknowScale"
+        android:title="@string/edit_unknowScale"
+        android:showAsAction="never" >
+        
+    </item>
 
    <item
         android:id="@+id/manage_data"
@@ -72,11 +79,6 @@
             android:id="@+id/del_db"
             android:orderInCategory="100"
             android:title="@string/del_dbFile"/>  
-            
-          <item
-            android:id="@+id/reset_mapInfo"
-            android:orderInCategory="100"
-            android:title="@string/reset_mapInfo"/> 
         </menu>       
     </item>
 

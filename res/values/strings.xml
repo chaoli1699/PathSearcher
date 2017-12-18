@@ -17,6 +17,8 @@
     <string name="err_on">Err On</string>
     <string name="err_off">Err Off</string>
     
+    <string name="edit_unknowScale">Edit unkonw-scale</string>
+    
     <string name="manage_data">Manage Data</string>
     <string name="del_mapFile">Del Current Map</string>
     <string name="del_dbFile">Del Local Database</string>

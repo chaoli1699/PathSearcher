@@ -34,12 +34,12 @@ public class FileUtils {
     		}else{
     			Log.i(TAG, "Create "+ fileName+ " failed!");
     		}
-    		
-    		FileWriter  fo=new FileWriter (file);
-			fo.write(content);
-			fo.flush();
-			fo.close();
     	}
+    	
+    	FileWriter  fo=new FileWriter (file);
+		fo.write(content);
+		fo.flush();
+		fo.close();
     }
     
 	/**
