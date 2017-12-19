@@ -5,7 +5,22 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     
+    <string name="map_list">Map List</string>
     <string name="map1">map1</string>
     <string name="map2">map2</string>
+      
+    <string name="stone_switch">Stone Switch</string>
+    <string name="stone_on">Stone On</string>
+    <string name="stone_off">Stone Off</string>
+    
+    <string name="err_allowed">Err Switch</string>
+    <string name="err_on">Err On</string>
+    <string name="err_off">Err Off</string>
+    
+    <string name="manage_data">Manage Data</string>
+    <string name="del_mapFile">Del Current Map</string>
+    <string name="del_dbFile">Del Local Database</string>
+    
+    <string name="reset_mapInfo">Rest MapInfo</string>
     
 </resources>

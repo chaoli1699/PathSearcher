@@ -380,10 +380,12 @@ public class PSMapView extends ScaleImageView {
 	
 	public void setStonesVisiable(boolean ifShow){
 		SHOW_STONES=ifShow;
+		invalidate();
 	}
 	
 	public void setPosErrVisiable(boolean ifShow){
 		SHOW_ERR_ALLOWED=ifShow;
+		invalidate();
 	}
 	
 	public void release(){

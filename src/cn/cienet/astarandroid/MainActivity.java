@@ -5,12 +5,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import cn.cienet.pathsearcher.astar.MapBuilder;
+import cn.cienet.pathsearcher.interfaces.OnDelFileListener;
 import cn.cienet.pathsearcher.interfaces.OnPointClickListener;
+import cn.cienet.pathsearcher.sql.DBManager;
 import cn.cienet.pathsearcher.utils.TTSConstants;
 import cn.cienet.pathsearcher.weight.PSTMapView;
 import cn.cienet.pathsearcher.weight.PathSearcher;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BaseActivity {
 	
 	private PSTMapView pstMapView;
 	
@@ -66,6 +68,42 @@ public class MainActivity extends Activity {
 			pstMapView.reloadMapById(2, R.drawable.map2);
 			break;
 
+		case R.id.stone_on:
+			pstMapView.setStonesVisiable(true);
+			break;
+		case R.id.stone_off:
+			pstMapView.setStonesVisiable(false);
+			break;
+		case R.id.err_on:
+			pstMapView.setPosErrVisiable(true);
+			break;
+		case R.id.err_off:
+			pstMapView.setPosErrVisiable(false);
+			break;
+		case R.id.del_map:
+			MapBuilder.build().deleteMapFile(new OnDelFileListener() {
+				
+			@Override
+			public void onDelResult(boolean result, String msg) {
+					// TODO Auto-generated method stub
+					showToast(msg);
+				}
+			});
+			break;
+		case R.id.del_db:
+			DBManager.build().deleteDbFile(new OnDelFileListener() {
+				
+				@Override
+				public void onDelResult(boolean result, String msg) {
+					// TODO Auto-generated method stub
+					showToast(msg);
+			}
+			});
+			break;
+		case R.id.reset_mapInfo:
+//			startAct(EditMapActivity.class);
+			break;
+			
 		default:
 			break;
 		}

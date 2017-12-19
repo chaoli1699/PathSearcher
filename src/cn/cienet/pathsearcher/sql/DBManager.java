@@ -9,6 +9,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
+import cn.cienet.pathsearcher.interfaces.OnDelFileListener;
 
 public class DBManager {
 	
@@ -43,7 +44,7 @@ public class DBManager {
 			return SQLiteDatabase.openOrCreateDatabase(dbFile,null);
 		}else{
 			try {
-				copyAssetsToDB(context);
+				copyAssetsToDB(context, dbFile);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -53,12 +54,30 @@ public class DBManager {
 		return openDatabase(context);
 	}
 	
+	public void deleteDbFile(OnDelFileListener onDelFileListener){
+		File dbFile=new File(dbPath, dbName);
+		if (dbFile.exists()) {
+			boolean result = dbFile.delete();
+			String str;
+	   		if (result) {
+    		    str="Del local database success!";
+				Log.i(TAG, str);
+				onDelFileListener.onDelResult(true, str);
+				
+			}else {
+				str="Del local database fail!";
+				Log.i(TAG, str);
+				onDelFileListener.onDelResult(false, str);
+			}
+		}
+	}
+	
 	/**
      * 将assets下的资源复制到应用程序的databases目录下
      * @param context 上下文
      * @param dbName assets下的资源的文件名
      */
-    private void copyAssetsToDB(Context context) throws IOException {
+    private void copyAssetsToDB(Context context, File dbFile) throws IOException {
         
         if(dbFile.getParentFile().mkdirs()){
         	Log.i(TAG, "Create file success!");
