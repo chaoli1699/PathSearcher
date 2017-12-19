@@ -20,7 +20,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		initActionBar(TAG);
+		initActionBar(getResources().getString(R.string.app_name));
 		setContentView(R.layout.activity_main);
 		
 		psMapView=(PSMapView) findViewById(R.id.main_mapView);

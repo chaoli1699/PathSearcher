@@ -37,7 +37,7 @@ public class FileUtils {
     	}
     	
     	FileWriter  fo=new FileWriter (file);
-		fo.write(content);
+		fo.write(EncryptUtils.encodeString(content));
 		fo.flush();
 		fo.close();
     }
@@ -61,7 +61,7 @@ public class FileUtils {
     	String str=in.readLine();
     	in.close();
     	
-    	return str;
+    	return EncryptUtils.decodeString(str);
     }
     
     /**

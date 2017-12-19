@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 public class EditMapActivity extends BaseActivity{
@@ -16,7 +15,7 @@ public class EditMapActivity extends BaseActivity{
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		initActionAar(TAG, false, true);
+		initActionAar("EditMap", false, true);
 		setContentView(R.layout.activity_editmap);
 		
 		initView();	
