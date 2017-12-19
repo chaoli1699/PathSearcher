@@ -3,9 +3,14 @@
     tools:context="cn.cienet.astarandroid.MainActivity" >
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/map1"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_settings"/>
-
+        android:title="@string/map1"/>
+     
+     <item
+        android:id="@+id/map2"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/map2"/>
 </menu>

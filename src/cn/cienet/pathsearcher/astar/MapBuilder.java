@@ -24,7 +24,7 @@ public class MapBuilder {
     private volatile static MapBuilder instance;
     
     private static final String TAG="MapBuilder";
-    private static final String mapName="astar_map.txt";
+    private static String mapName="astar_map.txt";
     private static final String mapPath=Environment.getExternalStorageDirectory().getAbsolutePath()+"/cn.cienet.astar/map/";
     
     private MapBuilder(){}
@@ -40,24 +40,37 @@ public class MapBuilder {
     	return instance;
     }
     
+    private void initMapName(int mapId){
+       	StringBuffer sb=new StringBuffer();
+       	sb.append("astar_map");
+       	sb.append(mapId);
+       	sb.append(".txt");
+       	mapName=sb.toString();
+    }
+    
     /**
      * ≥ı ºªØµÿÕº
      * @param context
      * @param mapId
      */
     public void initMap(Context context,int mapId){
+    	
+    	initMapName(mapId);
+		
+		mapBean=new BeanFactory().getMapBean().getMapBeanById(context, mapId+"");
+		
+		if (mapBean==null) {
+			return ;
+		}
+		
+		checkComplexRateOfMap(mapBean);
+		
     	try {
-    		
-    		mapBean=new BeanFactory().getMapBean().getMapBeanById(context, mapId+"");
-    		if (mapBean!=null) {
-    			checkComplexRateOfMap(mapBean);
-    			
-    			if(readMapFromLocalFile()<0){
-    				saveMapToLocalFile(createMap(mapBean));
-    				initMap(context,mapId);
-    			}
-    			Log.i(TAG,"Load map successed!");
+    		if(readMapFromLocalFile()<0){
+				saveMapToLocalFile(createMap(mapBean));
+				initMap(context,mapId);
 			}
+			Log.i(TAG,"Load map successed!");
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

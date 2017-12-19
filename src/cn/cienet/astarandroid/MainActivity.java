@@ -27,12 +27,12 @@ public class MainActivity extends Activity {
 		pathSearcher=new PathSearcher();
 		pstMapView.setPathSearcher(pathSearcher);
 		//初始化起点
-		final float[] currentPos=new float[2];
-		currentPos[0]=MapBuilder.mapBean.getAimList().get(0).getPointX();
-		currentPos[1]=MapBuilder.mapBean.getAimList().get(0).getPointY();
-		pstMapView.setCurrentPos(currentPos);
-		//psMapView.setPosErrVisiable(true);
-		//psMapView.setStonesVisiable(true);
+//		final float[] currentPos=new float[2];
+//		currentPos[0]=MapBuilder.mapBean.getAimList().get(0).getPointX();
+//		currentPos[1]=MapBuilder.mapBean.getAimList().get(0).getPointY();
+//		pstMapView.setCurrentPos(currentPos);
+//		psMapView.setPosErrVisiable(true);
+//		psMapView.setStonesVisiable(true);
 		pstMapView.setTTSConstants(TTSConstants.appId, TTSConstants.apiKey, TTSConstants.secretKey);
 				
 		pstMapView.setOnPointClickListener(new OnPointClickListener() {
@@ -58,8 +58,16 @@ public class MainActivity extends Activity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			//return true;
+		switch (id) {
+		case R.id.map1:
+			pstMapView.reloadMapById(1, R.drawable.map);
+			break;
+		case R.id.map2:
+			pstMapView.reloadMapById(2, R.drawable.map2);
+			break;
+
+		default:
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}

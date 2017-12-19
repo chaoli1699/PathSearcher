@@ -15,6 +15,8 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -263,6 +265,8 @@ public class PSMapView extends ScaleImageView {
 			aimAreas=MapBuilder.mapBean.getAimList();
 			
 			aimArea=aimAreas.get(0);
+			
+			setCurrentPos(aimArea.getPointX(), aimArea.getPointY());
 		}
 	}
 	
@@ -358,10 +362,14 @@ public class PSMapView extends ScaleImageView {
 		});
 	}
 	
-	public void setCurrentPos(float[] pos){
-		currentPosX=pos[0]/MapBuilder.SCALETOREAL;
-		currentPosY=pos[1]/MapBuilder.SCALETOREAL;
-	}
+	private void setCurrentPos(float x, float y){
+		currentPosX=x/MapBuilder.SCALETOREAL;
+		currentPosY=y/MapBuilder.SCALETOREAL;
+		  	}
+//	public void setCurrentPos(float[] pos){
+//		currentPosX=pos[0]/MapBuilder.SCALETOREAL;
+//		currentPosY=pos[1]/MapBuilder.SCALETOREAL;
+//	}
 	
 	public float[] getCurrentPos(){
 		float[] pos=new float[2];
@@ -383,6 +391,15 @@ public class PSMapView extends ScaleImageView {
 			pauseAnimator();
 			animatorSet.cancel();
 			animatorSet=null;
+		}
+	}
+	
+	public void reloadMapById(int mapId, int mapRes){
+		if (!LOCK_AIM_POINT&&mapId!=MapBuilder.mapBean.getMapId()) {
+			MapBuilder.build().initMap(getContext(), mapId);
+			initMapBean();
+			Bitmap b=BitmapFactory.decodeResource(getResources(), mapRes);
+			setImageBitmap(b);
 		}
 	}
 	
