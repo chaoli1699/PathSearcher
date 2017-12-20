@@ -43,12 +43,14 @@ public class PSMapView extends ScaleImageView {
 	/*
 	 * ÆÁÄ»³¤¿í
 	 */
+	private Resources resources = this.getResources();
+	private DisplayMetrics dm = resources.getDisplayMetrics();
 	private int screenWidth;
 	private int screenHeight;
 	/*
 	 * Í¼ÐÎ¾ØÕóËõ·ÅÁ¿
 	 */
-	private float[] matrixValues;
+	private float[] matrixValues=new float[9];
 	/*
 	 * »­±Ê
 	 */
@@ -192,6 +194,9 @@ public class PSMapView extends ScaleImageView {
 	public PSMapView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		// TODO Auto-generated constructor stub
+		screenWidth = dm.widthPixels;
+		screenHeight = dm.heightPixels;
+		
 		initPaint();
 		initMapBean();
 		initAnimator();
@@ -253,11 +258,6 @@ public class PSMapView extends ScaleImageView {
 		
 		if (MapBuilder.mapBean!=null) {
 			
-			Resources resources = this.getResources();
-			DisplayMetrics dm = resources.getDisplayMetrics();
-			screenWidth = dm.widthPixels;
-			screenHeight = dm.heightPixels;
-			
 			displayScale=(float)screenWidth * (float) MapBuilder.mapBean.getUnknowScale() / (float)(MapBuilder.mapBean.getmWidth());
 			locationErrorAllowdRadiu=MapBuilder.mapBean.getLocationErrorAllowed()*100/MapBuilder.SCALETOREAL/displayScale;
 			stoneAreas=MapBuilder.mapBean.getStoneList();
@@ -267,6 +267,8 @@ public class PSMapView extends ScaleImageView {
 			changeMapById(MapBuilder.mapBean.getMapId());
 			
 			setCurrentPos(aimArea.getPointX(),aimArea.getPointY());
+			
+	        move2Point(aimArea.getPointX(), aimArea.getPointY(), screenWidth/2, screenHeight/2, null);
 		}
 	}
 	
@@ -526,7 +528,6 @@ public class PSMapView extends ScaleImageView {
 		// TODO Auto-generated method stub
 		super.onDraw(canvas);
 		
-		matrixValues=new float[9];
 		mMatrix.getValues(matrixValues);
 		
 		if (SHOW_STONES) {
@@ -600,8 +601,6 @@ public class PSMapView extends ScaleImageView {
             setMeasuredDimension(defaultWidthOrHeight,heightSpecSize);
         }else if (widthMeasureSpec==MeasureSpec.AT_MOST){
             setMeasuredDimension(widthSpecSize,defaultWidthOrHeight);
-        }
-        
-        move2Point(aimArea.getPointX(), aimArea.getPointY(), widthSpecSize/2, heightSpecSize/2, null);
+        }        
     }
 }

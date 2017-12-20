@@ -224,7 +224,7 @@ public class ScaleImageView extends ImageView implements OnGlobalLayoutListener,
 	 * 获取图片当前的缩放值
 	 * @return
 	 */
-	public float getScale(){
+	private float getScale(){
 		float[] values = new float[9];
 		mMatrix.getValues(values);
 		return values[Matrix.MSCALE_X];
