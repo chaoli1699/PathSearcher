@@ -10,6 +10,6 @@ public class MyApp extends Application{
 		// TODO Auto-generated method stub
 		super.onCreate();
 		
-		MapBuilder.build().initMap(getApplicationContext(), 1);
+		MapBuilder.build().initMap(getApplicationContext());
 	}
 }

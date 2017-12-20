@@ -28,6 +28,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import cn.cienet.astarandroid.R;
 import cn.cienet.pathsearcher.astar.MapBuilder;
 import cn.cienet.pathsearcher.bean.AimArea;
 import cn.cienet.pathsearcher.bean.StoneArea;
@@ -266,6 +267,8 @@ public class PSMapView extends ScaleImageView {
 			
 			aimArea=aimAreas.get(0);
 			
+			changeMapById(MapBuilder.mapBean.getMapId());
+			
 			setCurrentPos(aimArea.getPointX(), aimArea.getPointY());
 		}
 	}
@@ -397,12 +400,29 @@ public class PSMapView extends ScaleImageView {
 	}
 	
 	public void reloadMapById(int mapId, int mapRes){
+		MapBuilder.build().markCurrentMap(MapBuilder.mapBean.getMapId());
 		if (!LOCK_AIM_POINT&&mapId!=MapBuilder.mapBean.getMapId()) {
 			MapBuilder.build().initMap(getContext(), mapId);
 			initMapBean();
 			Bitmap b=BitmapFactory.decodeResource(getResources(), mapRes);
 			setImageBitmap(b);
 		}
+	}
+	
+	private void changeMapById(int mapId){
+		Bitmap b = null;
+		switch (mapId) {
+		case 1:
+			b=BitmapFactory.decodeResource(getResources(), R.drawable.map);
+			break;
+
+		case 2:
+			b=BitmapFactory.decodeResource(getResources(), R.drawable.map2);
+			break;
+		default:
+			break;
+		}
+		setImageBitmap(b);
 	}
 	
 	protected float[] fixXY(float x, float y){

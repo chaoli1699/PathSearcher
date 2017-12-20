@@ -1,6 +1,5 @@
 package cn.cienet.astarandroid;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +21,7 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		initActionBar(getResources().getString(R.string.app_name));
 		setContentView(R.layout.activity_main);
 		
 		pstMapView=(PSTMapView) findViewById(R.id.main_mapView);
@@ -81,7 +81,7 @@ public class MainActivity extends BaseActivity {
 			pstMapView.setPosErrVisiable(false);
 			break;
 		case R.id.del_map:
-			MapBuilder.build().deleteMapFile(new OnDelFileListener() {
+			MapBuilder.build().delMapFile(new OnDelFileListener() {
 				
 			@Override
 			public void onDelResult(boolean result, String msg) {
