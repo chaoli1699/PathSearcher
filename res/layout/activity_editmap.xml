@@ -5,22 +5,6 @@
     android:orientation="vertical" >
     
     <EditText 
-        android:id="@+id/editmap_mapId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="number"
-        android:singleLine="true"
-        android:hint="Input mapID"/>
-    
-    <EditText 
-        android:id="@+id/editmap_mapName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textCapCharacters"
-        android:singleLine="true"
-        android:hint="Input mapName"/>
-    
-    <EditText 
         android:id="@+id/editmap_unknowScale"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,19 +12,18 @@
         android:singleLine="true"
         android:hint="Input unknowScale"/>
     
-    
-    <EditText 
-        android:id="@+id/editmap_errAllowedRadiu"
+    <Button 
+        android:id="@+id/editmap_dispaly"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:singleLine="true"
-        android:hint="Input errAllowedRadiu"/>
+        android:onClick="Display"
+        android:hint="Diaplay"/>
     
     <Button 
-        android:id="@+id/editmap_ok"
+        android:id="@+id/editmap_applay"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="OK"/>
+        android:onClick="Applay"
+        android:hint="Applay"/>
     
 </LinearLayout>

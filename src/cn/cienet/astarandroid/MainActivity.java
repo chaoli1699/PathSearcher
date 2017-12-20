@@ -100,8 +100,8 @@ public class MainActivity extends BaseActivity {
 			}
 			});
 			break;
-		case R.id.reset_mapInfo:
-//			startAct(EditMapActivity.class);
+		case R.id.edit_unknowScale:
+			startAct(EditMapActivity.class);
 			break;
 			
 		default:
