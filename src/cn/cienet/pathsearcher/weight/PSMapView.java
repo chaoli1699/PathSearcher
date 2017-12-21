@@ -357,7 +357,9 @@ public class PSMapView extends ScaleImageView {
 					LOCK_AIM_POINT=false;
 					aimPaint.setColor(Color.RED);
 					endPosPaint.setAlpha(0);
-					pauseAnimator();
+					if (animationSet!=null) {
+						pauseAnimator();
+					}
 				}
 				handler.sendEmptyMessage(JUST_REFRESH_VIEW);
 			}
