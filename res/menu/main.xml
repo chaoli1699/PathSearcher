@@ -56,13 +56,6 @@
             android:title="@string/err_off"/>  
         </menu>       
     </item>
-    
-    <item
-        android:id="@+id/edit_unknowScale"
-        android:title="@string/edit_unknowScale"
-        android:showAsAction="never" >
-        
-    </item>
 
    <item
         android:id="@+id/manage_data"

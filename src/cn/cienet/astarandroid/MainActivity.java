@@ -100,9 +100,7 @@ public class MainActivity extends BaseActivity {
 				}
 			});
 			break;
-		case R.id.edit_unknowScale:
-			startAct(EditMapActivity.class);
-			break;
+		
 		default:
 			break;
 		}
